@@ -5,13 +5,18 @@ import com.google.inject.Singleton;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import wxdgaming.boot2.core.HoldRunApplication;
+import wxdgaming.boot2.core.ann.Shutdown;
+import wxdgaming.boot2.starter.batis.mapdb.HoldMap;
 import wxdgaming.boot2.starter.batis.mapdb.MapDBDataHelper;
+import wxdgaming.boot2.starter.scheduled.ann.Scheduled;
 import wxdgaming.webim.service.bean.ChatRoom;
 import wxdgaming.webim.service.bean.ChatUser;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -26,30 +31,45 @@ import java.util.concurrent.atomic.AtomicLong;
 public class DataService extends HoldRunApplication {
 
     private final AtomicLong atomicLong = new AtomicLong(1000);
-    private final Map<Long, ChatRoom> roomMap = new java.util.concurrent.ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, ChatRoom> roomMap = new java.util.concurrent.ConcurrentHashMap<>();
     final MapDBDataHelper mapDBDataHelper;
+    final HoldMap roomMapCache;
 
     @Inject
     public DataService(MapDBDataHelper mapDBDataHelper) {
         this.mapDBDataHelper = mapDBDataHelper;
-        ChatRoom publicChatRoom = new ChatRoom().setSystem(true).setRoomId(1).setMaster("系统").setTitle("公共聊天室").setMaxUser(1000);
-        roomMap.put(publicChatRoom.getRoomId(), publicChatRoom);
-        roomMap.put(2L, new ChatRoom().setSystem(true).setRoomId(2).setMaster("系统").setTitle("公共聊天室2").setMaxUser(1000));
+        roomMapCache = mapDBDataHelper.bMap("room-map");
+        for (Object value : roomMapCache.values()) {
+            ChatRoom chatRoom = (ChatRoom) value;
+            roomMap.put(chatRoom.getRoomId(), chatRoom);
+        }
+        if (!roomMap.containsKey(1L)) {
+            ChatRoom publicChatRoom = new ChatRoom().setSystem(true).setRoomId(1).setMaster("系统").setTitle("公共聊天室").setMaxUser(1000);
+            roomMap.put(publicChatRoom.getRoomId(), publicChatRoom);
+        }
     }
 
-    public List<Map<String, String>> roomListBean(ChatUser chatUser) {
-        List<Map<String, String>> roomList = new ArrayList<>();
-        roomList.add(getRoomMap().get(1L).toBean());
-        roomList.add(getRoomMap().get(2L).toBean());
+    @Shutdown
+    public void shutdown() {
+        saveRoom();
+        mapDBDataHelper.close();
+    }
 
-        List<Map<String, String>> tmp = getRoomMap().values().stream()
-                .filter(room -> room.getRoomId() > 1000)
-                .filter(room -> room.getUserMap().contains(chatUser.getName()))
+    @Scheduled("0 * * * * *")
+    public void saveRoom() {
+
+        roomMap.values().forEach(chatRoom -> {
+            roomMapCache.put(String.valueOf(chatRoom.getRoomId()), chatRoom);
+        });
+
+    }
+
+    public List<Map<String, Object>> roomListBean(ChatUser chatUser) {
+        return getRoomMap().values().stream()
+                .filter(room -> room.hasUser(chatUser.getName()))
+                .sorted(Comparator.comparingLong(ChatRoom::getRoomId))
                 .map(ChatRoom::toBean)
                 .toList();
-
-        roomList.addAll(tmp);
-        return roomList;
     }
 
 }
