@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>聊天室</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script charset="utf-8" type="text/javascript" src="/jquery/2.1.4/jquery.min.js"></script>
+    <script charset="utf-8" type="text/javascript" src="/js/com.wxd.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/style/com.wxd.css"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {overflow: hidden;width: 100%;height: 100%;}
+
+        input {border: 2px solid rgba(18, 18, 18, 0.92); border-radius: 4px;}
+
+        button {background-color: skyblue;box-shadow: 3px 3px 3px 1px #9c9c9c;}
+
+        table, tr {width: 100%; height: 100%;}
+
+        td {height: 100%;}
+
+        ul {width: 100%;}
+
+        ul.ulUser li {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        ul.title li {
+            display: block;
+            width: 100%;
+            text-align: right;
+            text-wrap: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin-bottom: 10px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-right: 3px;
+            background: #0a6aa1;
+            cursor: pointer;
+        }
+
+        /*选中效果*/
+        ul.title li.checked {background: #f4782f;}
+
+        ul.title li:hover {background: #f4782f;padding-top: 8px;padding-bottom: 8px;cursor: pointer;}
+
+        .divBg {display: none;position: absolute;top: 0;left: 0;width: 100%;height: 100%;background: rgba(28, 28, 28, 0.48);}
+
+        .divBg ul {width: 100%;list-style: none;}
+
+        .divBg li {width: 100%;padding-left: 10px;margin-bottom: 5px;height: 30px; line-height: 28px;}
+
+        .divBg li input {width: calc(100% - 80px);height: 28px; line-height: 28px;}
+
+        .divBg .divBox {
+            display: block;position: relative;left: 50%;top: 50%;transform: translate(-50%, -50%);
+            width: 400px;height: 180px;padding-top: 15px;
+            background: white;border-radius: 5px;
+        }
+
+    </style>
+    <script>
+
+        let pingMessage = new wxd.Map().put("cmd", "ping").toJson();
+        let wsClient = new wxd.netty.WSClient();
+        let ws_url = "";
+        let account = null;
+        let token = "";
+        let loginEnd = false;
+
+        let roomMap = new wxd.Map();
+
+        $(() => {
+            if (window.location.protocol.toLowerCase() === "https:") {
+                ws_url = "wss";
+            } else {
+                ws_url = "ws";
+            }
+            let host = window.location.host;
+            if (host.indexOf(":") > 0) {
+                host = host.substring(0, host.indexOf(":"));
+            }
+            ws_url = ws_url + "://" + host + ":8011/wxd-chat";
+            console.log("ws_url=" + ws_url);
+
+            wsClient.onError = (e) => {
+                console.log("onError=" + e);
+            };
+
+            wsClient.onSource = () => {
+                console.log("onOpen");
+            };
+
+            wsClient.onClose = () => {
+                console.log("onClose");
+            };
+
+            wsClient.onRead = (msg) => {
+                let json = JSON.parse(msg);
+                if (json.code !== 1) {
+                    wxd.message.notice(json.msg);
+                    return;
+                }
+                let cmd = json.cmd;
+                if (cmd === "roomMsg") {
+                    let roomId = json.roomId;
+                    let handler = roomMap.get(roomId);
+                    handler(json);
+                } else if (cmd === "newRoom") {
+                    let roomList = json.roomList;
+                    for (const room of roomList) {
+                        addRoomUi(room);
+                    }
+                }
+            };
+
+            wsClient.connect(ws_url);
+
+            setInterval(() => {
+                wsClient.socketOpen && wsClient.sendMsg(pingMessage);
+            }, 5000);
+
+            let upToken = localStorage.getItem("token");
+
+            wxd.netty.post("/api/chat/user/checkToken", "token=" + upToken,
+                (res) => {
+                    if (res.code === 1) {
+                        onLoginSuccess(res);
+                    } else {
+                        showLogin();
+                    }
+                },
+                (error) => {
+                    showLogin();
+                }
+            );
+
+        });
+
+        function showLogin() {
+            $(".loginBg").show();
+        }
+
+        function login() {
+            let account = $("#account").val();
+            let password = $("#password").val();
+            wxd.netty.post("/api/chat/user/login", "name=" + account + "&password=" + password,
+                (res) => {
+                    if (res.code === 1) {
+                        onLoginSuccess(res);
+                    } else {
+                        showLogin();
+                    }
+                },
+                (error) => {
+                    showLogin();
+                }
+            );
+        }
+
+        function onLoginSuccess(data) {
+            $(".loginBg").hide();
+            account = data.name;
+            token = data.token;
+            localStorage.setItem("token", token);
+            $("#li_account").html(account);
+
+            let roomList = data.roomList;
+            for (const room of roomList) {
+                addRoomUi(room);
+            }
+            checkRoom(1);
+            let loginMessage = new wxd.Map().put("cmd", "login").put("token", token).toJson();
+            setTimeout(() => {
+                if (wsClient.socketOpen) {
+                    wsClient.sendMsg(loginMessage);
+                } else {
+                    onLoginSuccess(data);
+                }
+            }, 1000)
+        }
+
+        function addRoomUi(room) {
+            let roomId = room.roomId + "";
+            if (!wxd.isNull(roomMap.get(roomId))) {
+                return;
+            }
+            roomMap.put(roomId, "put");
+            let appendUi = `
+<li id="room_${room.roomId}" onclick="checkRoom(${room.roomId})" title="${room.title}(${room.roomId}), 群主：${room.master}">${room.title}(${room.roomId})</li>
+`;
+            $(".title").append(appendUi);
+
+            let appendContentUi = `
+<object id="content_${room.roomId}" style="display: none;width: 100%;height: 100%;" data="chat.html?roomId=${room.roomId}"></object>
+`;
+            $(".chat_box_content").append(appendContentUi);
+        }
+
+        function checkRoom(roomId) {
+            $(".title").children("li").removeClass("checked");
+            $(".chat_box_content").children("object").hide();
+
+            $("#room_" + roomId).addClass("checked");
+            $("#content_" + roomId).show();
+        }
+
+        function registerRoom(roomId, onReceiveMessage) {
+            roomMap.put(roomId, onReceiveMessage);
+        }
+
+        function sendMsg(roomId, content, type) {
+            let message = new wxd.Map()
+                .put("cmd", "roomMsg")
+                .put("roomId", roomId)
+                .put("type", type)
+                .put("content", content)
+                .toJson();
+            wsClient.sendMsg(message);
+        }
+
+        function logout() {
+            localStorage.removeItem("token");
+            window.location.reload();
+        }
+
+        function newRoom() {
+            let title = $("#title").val();
+            let token = $("#token").val();
+            let token2 = $("#token2").val();
+            if (title === "" || token !== token2) {
+                wxd.message.notice("请填写完整信息");
+                return;
+            }
+            let newRoomMessage = new wxd.Map()
+                .put("cmd", "newRoom")
+                .put("title", title)
+                .put("token", token)
+                .toJson();
+            wsClient.sendMsg(newRoomMessage);
+
+            $("#title").val("");
+            $("#token").val("");
+            $("#token2").val("");
+            $(".newRoomBg").hide();
+
+        }
+
+    </script>
+</head>
+<body>
+<table>
+    <tr>
+        <td style="vertical-align: top;width: 180px;border-right: #0a6aa1 1px solid;">
+            <ul class="ulUser">
+                <li id="li_account">admin</li>
+                <li>
+                    <button onclick="$('.newRoomBg').show()">新建房间</button>
+                </li>
+                <li>
+                    <button onclick="logout()">退出登录</button>
+                </li>
+            </ul>
+            <ul class="title">
+
+            </ul>
+        </td>
+        <td class="chat_box_content">
+        </td>
+    </tr>
+</table>
+<div class="divBg loginBg">
+    <div class="divBox">
+        <ul>
+            <li>
+                <label for="account">账号: </label><input type="text" id="account" placeholder="请输入账号">
+            </li>
+            <li>
+                <label for="password">密码: </label><input type="password" id="password" placeholder="请输入密码">
+            </li>
+            <li>
+                <button onclick="login()">登录</button>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="divBg newRoomBg">
+    <div class="divBox">
+        <ul>
+            <li>
+                <label for="title">名字:</label><input type="text" id="title" placeholder="群名字"></li>
+            <li>
+                <label for="token">密码:</label><input type="password" id="token" placeholder="请输入密码"></li>
+            <li>
+                <label for="token2">密码:</label><input type="password" id="token2" placeholder="请输入密码"></li>
+            <li>
+                <button onclick="newRoom()">提交</button>
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

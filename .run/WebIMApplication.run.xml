@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="WebIMApplication" type="Application" factoryName="Application" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="wxdgaming.webim.service.WebIMApplication" />
+    <module name="wxdgaming.webim.service" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="wxdgaming.webim.service.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
