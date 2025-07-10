@@ -19,7 +19,7 @@
 
         html, body {overflow: hidden;width: 100%;height: 100%;}
 
-        input {border: 2px solid rgba(18, 18, 18, 0.92); border-radius: 4px;}
+        input {border: 2px solid rgba(89, 89, 89, 0.92); border-radius: 4px;}
 
         button {background-color: skyblue;box-shadow: 3px 3px 3px 1px #9c9c9c;}
 
@@ -51,6 +51,19 @@
             cursor: pointer;
         }
 
+        .chat_box_content object {
+            position: absolute; /*父亲*/
+            top: 150%;
+            left: 150%;
+            width: 100%;
+            height: 100%;
+        }
+
+        .chat_box_content object.checkedObject {
+            top: 0;
+            left: 0;
+        }
+
         /*选中效果*/
         ul.title li.checked {background: #f4782f;}
 
@@ -61,6 +74,8 @@
         .divBg ul {width: 100%;list-style: none;}
 
         .divBg li {width: 100%;padding-left: 10px;margin-bottom: 5px;height: 30px; line-height: 28px;}
+
+        .divBg li label {width: 65px;height: 28px; line-height: 28px;}
 
         .divBg li input {width: calc(100% - 80px);height: 28px; line-height: 28px;}
 
@@ -81,6 +96,17 @@
         let loginEnd = false;
 
         let roomMap = new wxd.Map();
+        let roomLoadingMap = new wxd.Map();
+
+        function registerRoom(roomId, onReceiveMessage, onLoadingClose) {
+            roomMap.put(roomId, onReceiveMessage);
+            roomLoadingMap.put(roomId, onLoadingClose);
+        }
+
+        function pullHistoryMessage(roomId) {
+            let message = new wxd.Map().put("cmd", "pullHistoryMessage").put("roomId", roomId).toJson();
+            wsClient.sendMsg(message);
+        }
 
         $(() => {
             if (window.location.protocol.toLowerCase() === "https:") {
@@ -115,14 +141,33 @@
                 }
                 let cmd = json.cmd;
                 if (cmd === "roomMsg") {
+                    /*正常聊天*/
                     let roomId = json.roomId;
                     let handler = roomMap.get(roomId);
                     handler(json);
-                } else if (cmd === "newRoom") {
+                } else if (cmd === "roomList") {
+                    /*下发的房间列表*/
                     let roomList = json.roomList;
                     for (const room of roomList) {
                         addRoomUi(room);
                     }
+                    if (!loginEnd) {
+                        loginEnd = true;
+                        checkRoom(1);
+                    }
+                } else if (pullHistoryMessage) {
+                    /*拉取房间的历史记录*/
+                    let roomId = json.roomId;
+                    let handler = roomMap.get(roomId);
+
+                    let historyList = json.history;
+                    for (const history of historyList) {
+                        let historyData = JSON.parse(history);
+                        handler(historyData);
+                    }
+
+                    let loadHandler = roomLoadingMap.get(roomId);
+                    loadHandler();
                 }
             };
 
@@ -177,10 +222,6 @@
             localStorage.setItem("token", token);
             $("#li_account").html(account);
 
-            let roomList = data.roomList;
-            for (const room of roomList) {
-                addRoomUi(room);
-            }
             checkRoom(1);
             let loginMessage = new wxd.Map().put("cmd", "login").put("token", token).toJson();
             setTimeout(() => {
@@ -204,22 +245,19 @@
             $(".title").append(appendUi);
 
             let appendContentUi = `
-<object id="content_${room.roomId}" style="display: none;width: 100%;height: 100%;" data="chat.html?roomId=${room.roomId}"></object>
+<object id="content_${room.roomId}" data="chat.html?roomId=${room.roomId}"></object>
 `;
             $(".chat_box_content").append(appendContentUi);
         }
 
         function checkRoom(roomId) {
             $(".title").children("li").removeClass("checked");
-            $(".chat_box_content").children("object").hide();
+            $(".chat_box_content").children("object").removeClass("checkedObject");
 
             $("#room_" + roomId).addClass("checked");
-            $("#content_" + roomId).show();
+            $("#content_" + roomId).addClass("checkedObject");
         }
 
-        function registerRoom(roomId, onReceiveMessage) {
-            roomMap.put(roomId, onReceiveMessage);
-        }
 
         function sendMsg(roomId, content, type) {
             let message = new wxd.Map()
@@ -258,6 +296,26 @@
 
         }
 
+        function joinRoom() {
+            let joinRoomId = $("#joinRoomId").val();
+            let joinRoomToken = $("#joinRoomToken").val();
+            if (joinRoomId === "") {
+                wxd.message.notice("请填写完整信息");
+                return;
+            }
+            let newRoomMessage = new wxd.Map()
+                .put("cmd", "joinRoom")
+                .put("joinRoomId", joinRoomId)
+                .put("joinRoomToken", joinRoomToken)
+                .toJson();
+            wsClient.sendMsg(newRoomMessage);
+
+            $("#joinRoomId").val("");
+            $("#joinRoomToken").val("");
+            $(".joinRoomBg").hide();
+
+        }
+
     </script>
 </head>
 <body>
@@ -268,6 +326,7 @@
                 <li id="li_account">admin</li>
                 <li>
                     <button onclick="$('.newRoomBg').show()">新建房间</button>
+                    <button onclick="$('.joinRoomBg').show()">加入房间</button>
                 </li>
                 <li>
                     <button onclick="logout()">退出登录</button>
@@ -277,13 +336,14 @@
 
             </ul>
         </td>
-        <td class="chat_box_content">
+        <td class="chat_box_content" style="position: relative;">
         </td>
     </tr>
 </table>
 <div class="divBg loginBg">
     <div class="divBox">
         <ul>
+            <li><h3>登录</h3></li>
             <li>
                 <label for="account">账号: </label><input type="text" id="account" placeholder="请输入账号">
             </li>
@@ -299,6 +359,7 @@
 <div class="divBg newRoomBg">
     <div class="divBox">
         <ul>
+            <li><h3>创建房间</h3></li>
             <li>
                 <label for="title">名字:</label><input type="text" id="title" placeholder="群名字"></li>
             <li>
@@ -307,6 +368,23 @@
                 <label for="token2">密码:</label><input type="password" id="token2" placeholder="请输入密码"></li>
             <li>
                 <button onclick="newRoom()">提交</button>
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+<div class="divBg joinRoomBg">
+    <div class="divBox">
+        <ul>
+            <li><h3>加入房间</h3></li>
+            <li>
+                <label for="joinRoomId">ID:</label><input type="text" id="joinRoomId" placeholder="房间ID"></li>
+            <li>
+                <label for="joinRoomToken">密码:</label><input type="password" id="joinRoomToken" placeholder="请输入密码">
+            </li>
+            <li>
+                <button onclick="joinRoom()">提交</button>
             </li>
         </ul>
     </div>

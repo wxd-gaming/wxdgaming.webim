@@ -73,9 +73,10 @@
         let roomId = null;
 
         $(() => {
+            wxd.loading();
             map.loadSearch();
             roomId = map.get("roomId");
-            window.parent.registerRoom(roomId, onReceiveMessage);
+            window.parent.registerRoom(roomId, onReceiveMessage, closeLoading);
 
             document.addEventListener('paste', function (event) {
                 const clipboardData = event.clipboardData || event.originalEvent?.clipboardData;
@@ -99,7 +100,14 @@
                 }
             });
 
+            /*页面加载完成后拉取历史记录*/
+            window.parent.pullHistoryMessage(roomId);
+
         });
+
+        function closeLoading() {
+            wxd.loading_close();
+        }
 
         let uidColor = new wxd.Map();
 

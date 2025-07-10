@@ -7,9 +7,9 @@ import wxdgaming.boot2.core.collection.MapOf;
 import wxdgaming.boot2.core.lang.ObjectBase;
 import wxdgaming.boot2.starter.net.SessionGroup;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
@@ -21,7 +21,9 @@ import java.util.concurrent.ConcurrentSkipListSet;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class ChatRoom extends ObjectBase {
+public class ChatRoom extends ObjectBase implements Serializable {
+
+    @Serial private static final long serialVersionUID = 1L;
 
     private long roomId;
     private boolean system = false;
@@ -29,12 +31,16 @@ public class ChatRoom extends ObjectBase {
     private String master;
     /** 房间标题 */
     private String title;
-    private int maxUser;
     /** 进入房间的密钥 */
     private String token;
+    private int maxUser;
+    /** 最大历史记录 */
+    private int maxHistory = 1000;
 
+    private final List<String> historyList = new ArrayList<>();
     private final Set<String> userMap = new ConcurrentSkipListSet<>();
-    private final SessionGroup sessionGroup = new SessionGroup();
+
+    private transient SessionGroup sessionGroup = new SessionGroup();
 
     public void addUser(String user) {
         userMap.add(user);
@@ -44,8 +50,21 @@ public class ChatRoom extends ObjectBase {
         return userMap.contains(user) || system;
     }
 
-    public Map<String, String> toBean() {
-        HashMap<String, String> objectObjectHashMap = MapOf.newHashMap();
+    public void removeUser(String user) {
+        userMap.remove(user);
+    }
+
+    public void addHistory(String message) {
+        synchronized (historyList) {
+            historyList.add(message);
+            if (historyList.size() > maxHistory) {
+                historyList.removeFirst();
+            }
+        }
+    }
+
+    public Map<String, Object> toBean() {
+        HashMap<String, Object> objectObjectHashMap = MapOf.newHashMap();
         objectObjectHashMap.put("roomId", String.valueOf(roomId));
         objectObjectHashMap.put("master", master);
         objectObjectHashMap.put("title", title);
@@ -54,5 +73,15 @@ public class ChatRoom extends ObjectBase {
         return objectObjectHashMap;
     }
 
+    public List<String> roomHistory() {
+        synchronized (historyList) {
+            return new ArrayList<>(historyList);
+        }
+    }
 
+    public SessionGroup getSessionGroup() {
+        if (sessionGroup == null)
+            sessionGroup = new SessionGroup();
+        return sessionGroup;
+    }
 }

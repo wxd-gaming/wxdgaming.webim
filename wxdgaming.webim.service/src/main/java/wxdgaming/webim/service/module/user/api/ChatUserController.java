@@ -94,13 +94,9 @@ public class ChatUserController {
 
     RunResult loginSuccess(ChatUser chatUser) {
         String token = chatUserService.token(chatUser);
-
-        List<Map<String, String>> roomList = dataService.roomListBean(chatUser);
-
         return RunResult.ok()
                 .fluentPut("name", chatUser.getName())
-                .fluentPut("token", token)
-                .fluentPut("roomList", roomList);
+                .fluentPut("token", token);
 
     }
 
