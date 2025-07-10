@@ -1,0 +1,1 @@
+java -server -Dfile.encoding=UTF-8 -Dlogback.configurationFile=./logback.xml -XX:-OmitStackTraceInFastThrow -jar webim.jar

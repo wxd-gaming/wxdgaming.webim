@@ -2,6 +2,7 @@
   <configuration default="false" name="WebIMApplication" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="wxdgaming.webim.service.WebIMApplication" />
     <module name="wxdgaming.webim.service" />
+    <option name="VM_PARAMETERS" value="-ea -server -Dfile.encoding=UTF-8 -Dlogback.configurationFile=logback-debug.xml -XX:-OmitStackTraceInFastThrow" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="wxdgaming.webim.service.*" />
