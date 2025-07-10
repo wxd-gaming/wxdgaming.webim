@@ -66,6 +66,7 @@ public class ChatRoom extends ObjectBase implements Serializable {
     public Map<String, Object> toBean() {
         HashMap<String, Object> objectObjectHashMap = MapOf.newHashMap();
         objectObjectHashMap.put("roomId", String.valueOf(roomId));
+        objectObjectHashMap.put("systemRoom", system ? 1 : 0);
         objectObjectHashMap.put("master", master);
         objectObjectHashMap.put("title", title);
         objectObjectHashMap.put("maxUser", String.valueOf(maxUser));

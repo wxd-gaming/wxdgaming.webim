@@ -18,7 +18,7 @@
 
         html, body {overflow: hidden;width: 100%;height: 100%;}
 
-        button {background-color: skyblue;box-shadow: 3px 3px 3px 1px #9c9c9c;}
+        button {background-color: skyblue;box-shadow: 3px 3px 3px 1px #9c9c9c;cursor: pointer;}
 
         .chat-content {
             margin-top: 18px;
@@ -63,7 +63,7 @@
             border-radius: 0 5px 5px 0;
         }
 
-        #chat-img-send {
+        #chat-exit-send {
             height: calc(100% - 15px);width: 60px;margin-left: 5px;border-radius: 5px;
         }
     </style>
@@ -71,13 +71,21 @@
 
         let map = new wxd.Map();
         let roomId = null;
+        let master = null;
+        let systemRoom = 0;
 
         $(() => {
             wxd.loading();
             map.loadSearch();
             roomId = map.get("roomId");
+            master = map.get("master");
+            systemRoom = map.get("systemRoom");
             window.parent.registerRoom(roomId, onReceiveMessage, closeLoading);
-
+            if (systemRoom !== "1") {
+                $("#chat-exit-send").removeAttr("disabled");
+            } else if (master === window.parent.account) {
+                $("#chat-exit-send").text("解散");
+            }
             document.addEventListener('paste', function (event) {
                 const clipboardData = event.clipboardData || event.originalEvent?.clipboardData;
 
@@ -176,6 +184,22 @@
             $("#chat-input").val("");
         }
 
+        function confirmExitRoom() {
+            let content = "确定要退出房间吗？";
+            if (master === window.parent.account) {
+                content = "确定要解散房间吗？";
+            }
+            wxd.message.alert(
+                content,
+                "提示",
+                "确定",
+                function () {
+                    window.parent.exitRoom(roomId);
+                },
+                "取消"
+            );
+        }
+
     </script>
 </head>
 <body>
@@ -194,12 +218,9 @@
     <button id="chat-send" onclick="sendChat()">
         发送
     </button>
-    <button id="chat-img-send" onclick="sendImg()">
-        文件
+    <button id="chat-exit-send" disabled="disabled" onclick="confirmExitRoom()">
+        退出
     </button>
 </div>
-<!--<div id="login_bg" style="position: absolute;left: 0;top:0;right: 0; bottom: 0;">-->
-
-<!--</div>-->
 </body>
 </html>

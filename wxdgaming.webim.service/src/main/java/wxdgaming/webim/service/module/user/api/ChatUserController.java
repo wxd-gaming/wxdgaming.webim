@@ -41,9 +41,8 @@ public class ChatUserController {
 
     @HttpRequest
     public RunResult register(HttpContext httpContext, @Param(path = "name") String name, @Param(path = "password") String token) {
-
-        AssertUtil.assertTrue(!StringUtils.isBlank(name) && StringUtils.length(name) >= 3, "用户名长度不能小于3");
-        AssertUtil.assertTrue(!StringUtils.isBlank(token) && StringUtils.length(token) >= 3, "密码长度不能小于3");
+        AssertUtil.assertTrue(!StringUtils.isBlank(name) && StringUtils.length(name) >= 3 && StringUtils.length(name) <= 12, "用户名长度3 ~ 12");
+        AssertUtil.assertTrue(!StringUtils.isBlank(token) && StringUtils.length(token) >= 3 && StringUtils.length(name) <= 64, "密码长度不能小于3");
 
         AssertUtil.assertTrue(!"系统".equals(name) && !"system".equalsIgnoreCase(name) && !"root".equalsIgnoreCase(name), "不符合规定");
 
@@ -77,7 +76,7 @@ public class ChatUserController {
     public RunResult login(HttpContext httpContext, @Param(path = "name") String name, @Param(path = "password") String token) {
         SingletonLockUtil.lock(name);
         try {
-            ChatUser chatUser = chatUserService.chatUser(name);
+            ChatUser chatUser = chatUserService.chatUser(name.toLowerCase());
             if (chatUser == null) {
                 return register(httpContext, name, token);
             }

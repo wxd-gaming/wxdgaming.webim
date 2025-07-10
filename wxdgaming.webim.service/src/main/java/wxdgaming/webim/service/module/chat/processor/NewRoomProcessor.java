@@ -3,6 +3,8 @@ package wxdgaming.webim.service.module.chat.processor;
 import com.alibaba.fastjson.JSONObject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import wxdgaming.boot2.core.util.AssertUtil;
 import wxdgaming.boot2.starter.net.SocketSession;
 import wxdgaming.webim.service.bean.ChatRoom;
 import wxdgaming.webim.service.bean.ChatUser;
@@ -23,9 +25,13 @@ public class NewRoomProcessor extends AbstractProcessor {
     }
 
     @Override public void process(SocketSession socketSession, ChatUser self, JSONObject jsonObject) {
+
+        String title = jsonObject.getString("title");
+        AssertUtil.assertTrue(!StringUtils.isBlank(title) && StringUtils.length(title) >= 3 && StringUtils.length(title) <= 12, "名字长度 3 ~ 8");
+
         ChatRoom chatRoom = new ChatRoom();
         chatRoom.setRoomId(dataService.getAtomicLong().incrementAndGet());
-        chatRoom.setTitle(jsonObject.getString("title"));
+        chatRoom.setTitle(title);
         chatRoom.setToken(jsonObject.getString("token"));
         chatRoom.setMaster(self.getName());
         chatRoom.setMaxUser(1000);

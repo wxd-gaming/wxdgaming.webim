@@ -50,13 +50,13 @@ public class ChatUserService extends HoldRunApplication {
     /** 查询用户 */
     public ChatUser chatUser(String name) {
         HoldMap holdMap = mapDBDataHelper.bMap("chat-user");
-        return holdMap.get(name);
+        return holdMap.get(name.toLowerCase());
     }
 
     /** 添加用户 */
     public void addChatUser(ChatUser chatUser) {
         HoldMap holdMap = mapDBDataHelper.bMap("chat-user");
-        holdMap.put(chatUser.getName(), chatUser);
+        holdMap.put(chatUser.getName().toLowerCase(), chatUser);
     }
 
 }
