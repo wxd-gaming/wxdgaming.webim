@@ -21,7 +21,7 @@
 
         input {border: 2px solid rgba(89, 89, 89, 0.92); border-radius: 4px;}
 
-        button {background-color: skyblue;box-shadow: 3px 3px 3px 1px #9c9c9c;}
+        button {background-color: skyblue;box-shadow: 3px 3px 3px 1px #9c9c9c;height: 22px;line-height: 24px;padding-left: 8px;padding-right: 8px;cursor: pointer;}
 
         table, tr {width: 100%; height: 100%;}
 
@@ -88,19 +88,17 @@
     </style>
     <script>
 
-        let pingMessage = new wxd.Map().put("cmd", "ping").toJson();
-        let wsClient = new wxd.netty.WSClient();
-        let ws_url = "";
-        let account = null;
-        let token = "";
-        let loginEnd = false;
+        var pingMessage = new wxd.Map().put("cmd", "ping").toJson();
+        var wsClient = new wxd.netty.WSClient();
+        var ws_url = "";
+        var loginAccount = null;
+        var token = "";
+        var loginEnd = false;
 
-        let roomMap = new wxd.Map();
-        let roomLoadingMap = new wxd.Map();
+        var roomMap = new wxd.Map();
 
-        function registerRoom(roomId, onReceiveMessage, onLoadingClose) {
-            roomMap.put(roomId, onReceiveMessage);
-            roomLoadingMap.put(roomId, onLoadingClose);
+        function registerRoom(roomId, self) {
+            roomMap.put(roomId, self);
         }
 
         function pullHistoryMessage(roomId) {
@@ -143,8 +141,8 @@
                 if (cmd === "roomMsg") {
                     /*正常聊天*/
                     let roomId = json.roomId;
-                    let handler = roomMap.get(roomId);
-                    handler(json);
+                    let self = roomMap.get(roomId);
+                    self.onReceiveMessage(json);
                 } else if (cmd === "roomList") {
                     /*下发的房间列表*/
                     let roomList = json.roomList;
@@ -159,7 +157,6 @@
                     /*退出房间*/
                     let roomId = json.roomId;
                     roomMap.remove(roomId);
-                    roomLoadingMap.remove(roomId);
 
                     $("#room_" + roomId).remove();
                     $("#content_" + roomId).remove();
@@ -169,16 +166,17 @@
                 } else if (cmd === "pullHistoryMessage") {
                     /*拉取房间的历史记录*/
                     let roomId = json.roomId;
-                    let handler = roomMap.get(roomId);
+                    let self = roomMap.get(roomId);
 
                     let historyList = json.history;
                     for (const history of historyList) {
                         let historyData = JSON.parse(history);
-                        handler(historyData);
+                        self.onReceiveMessage(historyData);
                     }
 
-                    let loadHandler = roomLoadingMap.get(roomId);
-                    loadHandler();
+                    self.onReceiveUser(json.userList);
+
+                    self.closeLoading();
                 }
             };
 
@@ -218,20 +216,22 @@
                         onLoginSuccess(res);
                     } else {
                         showLogin();
+                        wxd.message.notice(res.msg);
                     }
                 },
                 (error) => {
                     showLogin();
+                    wxd.message.notice(error);
                 }
             );
         }
 
         function onLoginSuccess(data) {
             $(".loginBg").hide();
-            account = data.name;
+            loginAccount = data.name;
             token = data.token;
             localStorage.setItem("token", token);
-            $("#li_account").html(account);
+            $("#li_account").html(loginAccount);
 
             checkRoom(1);
             let loginMessage = new wxd.Map().put("cmd", "login").put("token", token).toJson();

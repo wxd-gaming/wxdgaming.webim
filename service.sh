@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-MEM=450m
+MEM=960m
 JAR=`pwd`/webim.jar
 PID=`ps -ef | grep ${JAR} | grep -v grep | awk '{print $2}'`
 

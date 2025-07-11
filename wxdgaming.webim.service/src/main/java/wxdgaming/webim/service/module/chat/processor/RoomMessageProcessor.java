@@ -1,6 +1,7 @@
 package wxdgaming.webim.service.module.chat.processor;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.html.HtmlEscapers;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import wxdgaming.boot2.core.lang.RunResult;
@@ -42,7 +43,9 @@ public class RoomMessageProcessor extends AbstractProcessor {
         ok.fluentPut("sender", self.getName());
         ok.fluentPut("time", MyClock.nowString());
         ok.fluentPut("type", jsonObject.getString("type"));
-        ok.fluentPut("content", jsonObject.getString("content"));
+        String content = jsonObject.getString("content");
+        String escape = HtmlEscapers.htmlEscaper().escape(content);
+        ok.fluentPut("content", escape);
         String jsonString = ok.toJSONString();
         chatRoom.addHistory(jsonString);
         chatRoom.getSessionGroup().write(jsonString);

@@ -9,6 +9,8 @@ import wxdgaming.webim.service.bean.ChatRoom;
 import wxdgaming.webim.service.bean.ChatUser;
 import wxdgaming.webim.service.module.chat.AbstractProcessor;
 
+import java.util.ArrayList;
+
 /**
  * 获取历史消息
  *
@@ -38,6 +40,7 @@ public class RoomHistoryProcessor extends AbstractProcessor {
         RunResult ok = RunResult.ok();
         ok.fluentPut("cmd", "pullHistoryMessage");
         ok.fluentPut("roomId", roomId);
+        ok.fluentPut("userList", new ArrayList<>(chatRoom.getUserMap()));
         ok.fluentPut("history", chatRoom.roomHistory());
         socketSession.write(ok.toJSONString());
     }

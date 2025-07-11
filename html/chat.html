@@ -66,6 +66,11 @@
         #chat-exit-send {
             height: calc(100% - 15px);width: 60px;margin-left: 5px;border-radius: 5px;
         }
+
+        #ul_user_box li { width: 100%; min-height: 22px; cursor: pointer;}
+
+        #ul_user_box li.li_user:hover {background-color: rgba(243, 106, 4, 0.93);padding-left: 5px;padding-top: 8px;padding-bottom: 8px;}
+
     </style>
     <script>
 
@@ -78,12 +83,14 @@
             wxd.loading();
             map.loadSearch();
             roomId = map.get("roomId");
-            master = map.get("master");
+            master = decodeURIComponent(map.get("master"));
             systemRoom = map.get("systemRoom");
-            window.parent.registerRoom(roomId, onReceiveMessage, closeLoading);
+            window.parent.registerRoom(roomId, this);
+            console.log("roomId:", roomId, "master:", master, "window.parent.loginAccount:", window.parent.loginAccount, master === window.parent.loginAccount);
             if (systemRoom !== "1") {
                 $("#chat-exit-send").removeAttr("disabled");
-            } else if (master === window.parent.account) {
+            }
+            if (master === window.parent.loginAccount) {
                 $("#chat-exit-send").text("解散");
             }
             document.addEventListener('paste', function (event) {
@@ -144,6 +151,14 @@
             return newVar;
         }
 
+        function onReceiveUser(userList) {
+            $("#li_user_Count").text("房间总人数: " + userList.length);
+            for (const varUser of userList) {
+                let appendUi = `<li class="li_user">${varUser}</li>`;
+                $("#ul_user_box").append(appendUi);
+            }
+        }
+
         function onReceiveMessage(msg) {
 
             let bgColor = "ffffff";
@@ -158,7 +173,7 @@
 
             let appendUi = `
 <div class="chat-content" style="background-color: #${bgColor};">
-        <div style="border-bottom: #D3D3D3 1px solid;"><h3>${msg.sender}</h3> ${msg.time} 浙江.杭州</div>
+        <div style="border-bottom: #D3D3D3 1px solid;"><h3>${msg.sender}</h3> ${msg.time}</div>
         <p>${msg.content}</p>
     </div>
 `;
@@ -186,7 +201,7 @@
 
         function confirmExitRoom() {
             let content = "确定要退出房间吗？";
-            if (master === window.parent.account) {
+            if (master === window.parent.loginAccount) {
                 content = "确定要解散房间吗？";
             }
             wxd.message.alert(
@@ -203,15 +218,20 @@
     </script>
 </head>
 <body>
-<div id="chat-box" style="position: absolute;left: 10px;top:10px;right: 0; bottom: 120px;overflow-y: scroll;padding-right: 10px;padding-bottom: 20px;">
+<div id="chat-box" style="position: absolute;left: 10px;top:10px;right: 180px; bottom: 120px;overflow-y: scroll;padding-right: 10px;padding-bottom: 20px;">
     <div class="chat-content" style="display: none;">
-        <div style="border-bottom: #D3D3D3 1px solid;"><h3>無心道</h3> 2024-11-27 20:20:20 浙江.杭州</div>
+        <div style="border-bottom: #D3D3D3 1px solid;"><h3>無心道</h3> 2024-11-27 20:20:20</div>
         <p>ccccccc</p>
     </div>
     <div class="chat-content" style="display: none;">
-        <div style="border-bottom: #D3D3D3 1px solid;"><h3>無心道</h3> 2024-11-27 20:20:20 浙江.杭州</div>
+        <div style="border-bottom: #D3D3D3 1px solid;"><h3>無心道</h3> 2024-11-27 20:20:20</div>
         <p>ccccccc</p>
     </div>
+</div>
+<div id="user-box" style="position: absolute;top:10px;right: 0;bottom: 120px;width: 170px;overflow-y: scroll;">
+    <ul id="ul_user_box">
+        <li id="li_user_Count">房间总人数: 0</li>
+    </ul>
 </div>
 <div style="position: absolute;left: 5px;right: 18px; bottom: 0;height: 120px;align-items: center;justify-content: center;display: flex;">
     <textarea id="chat-input"></textarea>

@@ -38,6 +38,9 @@ public class LoginProcessor extends AbstractProcessor {
                 .filter(room -> room.hasUser(chatUser.getName()))
                 .forEach(room -> {
                     chatService.systemTip(room, "%s 上线".formatted(chatUser.getName()));
+                    if (room.isSystem()) {
+                        room.getUserMap().add(chatUser.getName());
+                    }
                     room.getSessionGroup().add(socketSession);
                 });
 
@@ -48,6 +51,9 @@ public class LoginProcessor extends AbstractProcessor {
             dataService.getRoomMap().values().stream()
                     .filter(room -> room.hasUser(chatUser.getName()))
                     .forEach(room -> {
+                        if (room.isSystem()) {
+                            room.getUserMap().remove(chatUser.getName());
+                        }
                         chatService.systemTip(room, "%s 下线".formatted(chatUser.getName()));
                     });
 

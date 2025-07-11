@@ -54,7 +54,7 @@ public class ChatUserService extends HoldRunApplication {
     }
 
     /** 添加用户 */
-    public void addChatUser(ChatUser chatUser) {
+    public void saveChatUser(ChatUser chatUser) {
         HoldMap holdMap = mapDBDataHelper.bMap("chat-user");
         holdMap.put(chatUser.getName().toLowerCase(), chatUser);
     }

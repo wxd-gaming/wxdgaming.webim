@@ -8,6 +8,7 @@ import wxdgaming.boot2.core.HoldRunApplication;
 import wxdgaming.boot2.core.ann.Init;
 import wxdgaming.boot2.core.chatset.StringUtils;
 import wxdgaming.boot2.core.chatset.json.FastJsonUtil;
+import wxdgaming.boot2.core.lang.AssertException;
 import wxdgaming.boot2.core.util.AssertUtil;
 import wxdgaming.boot2.starter.net.SocketSession;
 import wxdgaming.boot2.starter.net.pojo.IWebSocketStringListener;
@@ -81,6 +82,10 @@ public class WebSocketStringListener extends HoldRunApplication implements IWebS
             abstractProcessor.process(socketSession, bindData, jsonObject);
         } catch (Exception e) {
             log.error("处理异常: {}, {}", socketSession, message, e);
+            if (e instanceof AssertException assertException) {
+                chatService.fail(socketSession, assertException.getMessage());
+                return;
+            }
             chatService.fail(socketSession, "服务器异常");
         }
     }

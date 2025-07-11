@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import wxdgaming.boot2.core.lang.ObjectBase;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * 聊天用户
  *
@@ -12,9 +15,12 @@ import wxdgaming.boot2.core.lang.ObjectBase;
  **/
 @Getter
 @Setter
-public class ChatUser extends ObjectBase {
+public class ChatUser extends ObjectBase implements Serializable {
+
+    @Serial private static final long serialVersionUID = 1L;
 
     private String name;
     private String token;
+    private long uid;
 
 }

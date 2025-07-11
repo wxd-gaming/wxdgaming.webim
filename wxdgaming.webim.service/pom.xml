@@ -63,6 +63,11 @@
                                     </fileset>
                                 </copy>
                                 <copy todir="${project.build.directory}/run" overwrite="true">
+                                    <fileset dir="${project.basedir}/.." erroronmissingdir="false">
+                                        <include name="*.sh"/>
+                                    </fileset>
+                                </copy>
+                                <copy todir="${project.build.directory}/run" overwrite="true">
                                     <fileset dir="${project.basedir}/src/main/resources" erroronmissingdir="false">
                                         <include name="*"/>
                                     </fileset>
