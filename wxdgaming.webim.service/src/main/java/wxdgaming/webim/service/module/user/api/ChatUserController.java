@@ -47,7 +47,7 @@ public class ChatUserController {
 
         AssertUtil.assertTrue(!"系统".equals(name) && !"system".equalsIgnoreCase(name) && !"root".equalsIgnoreCase(name), "不符合规定");
 
-        AssertUtil.assertTrue(wxdgaming.boot2.core.chatset.StringUtils.checkMatches(name, wxdgaming.boot2.core.chatset.StringUtils.PATTERN_ABC_0), "用户名不能包含特殊字符");
+        AssertUtil.assertTrue(wxdgaming.boot2.core.chatset.StringUtils.checkMatches(name, wxdgaming.boot2.core.chatset.StringUtils.PATTERN_ACCOUNT), "用户名不能包含特殊字符");
 
         SingletonLockUtil.lock(name);
         try {
