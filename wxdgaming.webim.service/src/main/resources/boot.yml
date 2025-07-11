@@ -53,7 +53,7 @@ socket:
 
 db:
   mapdb:
-    path: "target/data/history.db"
+    path: "data-base/history.db"
 
 json:
   token:

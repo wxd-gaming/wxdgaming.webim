@@ -127,6 +127,10 @@
             /*页面加载完成后拉取历史记录*/
             window.parent.pullHistoryMessage(roomId);
 
+            setInterval(function () {
+                window.parent.pullUserListMessage(roomId);
+            }, 10 * 1000);
+
         });
 
         function closeLoading() {
@@ -161,7 +165,7 @@
         }
 
         function onReceiveUser(userList) {
-            $("#li_user_Count").text("房间总人数: " + userList.length);
+            $("#ul_user_box").append(`<li>房间总人数: ${userList.length}</li>`);
             for (const varUser of userList) {
                 let appendUi = `<li class="li_user">${varUser}</li>`;
                 $("#ul_user_box").append(appendUi);
@@ -244,7 +248,7 @@
 </div>
 <div id="user-box" style="position: absolute;top:10px;right: 0;bottom: 120px;width: 170px;overflow-y: scroll;">
     <ul id="ul_user_box">
-        <li id="li_user_Count">房间总人数: 0</li>
+        <li>房间总人数: 0</li>
     </ul>
 </div>
 <div style="position: absolute;left: 5px;right: 18px; bottom: 0;height: 120px;align-items: center;justify-content: center;display: flex;">
