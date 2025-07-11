@@ -352,13 +352,13 @@
     <tr>
         <td style="vertical-align: top;width: 260px;border-right: #0a6aa1 1px solid;">
             <ul class="ulUser">
-                <li id="li_account">admin</li>
-                <li>
-                    <button onclick="$('.newRoomBg').show()">新建房间</button>
-                    <button onclick="$('.joinRoomBg').show()">加入房间</button>
+                <li style="padding-top: 8px;">
+                    <label id="li_account">admin</label>
+                    <button onclick="logout()">退出</button>
                 </li>
                 <li>
-                    <button onclick="logout()">退出登录</button>
+                    <button onclick="$('.newRoomBg').show()">新建</button>
+                    <button onclick="$('.joinRoomBg').show()">加入</button>
                 </li>
             </ul>
             <ul class="title">

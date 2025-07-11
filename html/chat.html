@@ -165,6 +165,7 @@
         }
 
         function onReceiveUser(userList) {
+            $("#ul_user_box").html("");
             $("#ul_user_box").append(`<li>房间总人数: ${userList.length}</li>`);
             for (const varUser of userList) {
                 let appendUi = `<li class="li_user">${varUser}</li>`;
