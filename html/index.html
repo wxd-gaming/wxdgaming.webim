@@ -85,6 +85,8 @@
             background: white;border-radius: 5px;
         }
 
+        .nav-user-close {position: absolute;left: 0;top: calc(50% - 70px);height: 60px;width: 8px;background-color: #00a2d4;border-radius: 0 4px 4px 0;cursor: pointer;z-index: 999;}
+
     </style>
     <script>
 
@@ -111,7 +113,15 @@
             wsClient.sendMsg(message);
         }
 
+
         $(() => {
+
+            if (wxd.isMobileDevice()) {
+                console.log("当前设备是手机");
+            } else {
+                console.log("当前设备是电脑");
+            }
+
             if (window.location.protocol.toLowerCase() === "https:") {
                 ws_url = "wss";
             } else {
@@ -350,7 +360,7 @@
 <body>
 <table>
     <tr>
-        <td style="vertical-align: top;width: 260px;border-right: #0a6aa1 1px solid;">
+        <td id="td_user_box" style="vertical-align: top;width: 200px;border-right: #0a6aa1 1px solid;">
             <ul class="ulUser">
                 <li style="padding-top: 8px;">
                     <label id="li_account">admin</label>
@@ -366,6 +376,7 @@
             </ul>
         </td>
         <td class="chat_box_content" style="position: relative;">
+            <div class="nav-user-close" onclick="$('#td_user_box').toggle();"></div>
         </td>
     </tr>
 </table>

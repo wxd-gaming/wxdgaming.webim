@@ -73,6 +73,8 @@
 
         #ul_user_box li.li_user:hover {background-color: rgba(243, 106, 4, 0.93);padding-left: 5px;padding-top: 8px;padding-bottom: 8px;}
 
+        .nav-user-close{position: absolute;right: 0;top: calc(50% - 70px);height: 60px;width: 8px;background-color: #00a2d4;border-radius: 4px 0 0 4px;cursor: pointer;z-index: 999;}
+
     </style>
     <script>
 
@@ -234,6 +236,15 @@
             $("#div_img_max_box").show();
         }
 
+        function nav_user_box(){
+            $('#user-box').toggle();
+            if ($('#user-box').is(':visible')){
+                $('#chat-box').css('right', '180px');
+            }else{
+                $('#chat-box').css('right', '10px');
+            }
+        }
+
     </script>
 </head>
 <body>
@@ -247,6 +258,7 @@
         <p>ccccccc</p>
     </div>
 </div>
+<div class="nav-user-close" onclick="nav_user_box();"></div>
 <div id="user-box" style="position: absolute;top:10px;right: 0;bottom: 120px;width: 170px;overflow-y: scroll;">
     <ul id="ul_user_box">
         <li>房间总人数: 0</li>
