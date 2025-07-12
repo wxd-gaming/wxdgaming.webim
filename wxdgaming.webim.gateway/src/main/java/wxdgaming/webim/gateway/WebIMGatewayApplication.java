@@ -1,4 +1,4 @@
-package wxdgaming.webim.service;
+package wxdgaming.webim.gateway;
 
 import wxdgaming.boot2.core.CoreScan;
 import wxdgaming.boot2.starter.RunApplicationMain;
@@ -7,7 +7,7 @@ import wxdgaming.boot2.starter.batis.mapdb.MapDBScan;
 import wxdgaming.boot2.starter.net.SocketScan;
 import wxdgaming.boot2.starter.scheduled.ScheduledScan;
 
-public class WebIMApplication {
+public class WebIMGatewayApplication {
 
     public static void main(String[] args) {
         RunApplicationMain runApplication = WxdApplication.run(
@@ -15,7 +15,7 @@ public class WebIMApplication {
                 ScheduledScan.class,
                 SocketScan.class,
                 MapDBScan.class,
-                WebIMApplication.class
+                WebIMGatewayApplication.class
         );
         runApplication.start();
     }

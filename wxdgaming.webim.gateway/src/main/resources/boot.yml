@@ -56,8 +56,6 @@ db:
     path: "data-base/history.db"
 
 openIdKey: "sdfsfwge2353gSAWOIFu09w34rdvf09w34"
-loginServerUrl: "http://127.0.0.1:8081"
-innerAuthorizationKey: "3y345gvfew9023rhvf0923n90"
 
 json:
   token:

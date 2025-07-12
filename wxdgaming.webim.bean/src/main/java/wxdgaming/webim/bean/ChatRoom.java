@@ -1,4 +1,4 @@
-package wxdgaming.webim.service.bean;
+package wxdgaming.webim.bean;
 
 import lombok.Getter;
 import lombok.Setter;

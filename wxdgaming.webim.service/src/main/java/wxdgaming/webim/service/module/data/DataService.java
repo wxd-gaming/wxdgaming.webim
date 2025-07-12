@@ -4,15 +4,15 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import wxdgaming.boot2.core.BootConfig;
 import wxdgaming.boot2.core.HoldRunApplication;
 import wxdgaming.boot2.core.ann.Shutdown;
 import wxdgaming.boot2.starter.batis.mapdb.HoldMap;
 import wxdgaming.boot2.starter.batis.mapdb.MapDBDataHelper;
 import wxdgaming.boot2.starter.scheduled.ann.Scheduled;
-import wxdgaming.webim.service.bean.ChatRoom;
-import wxdgaming.webim.service.bean.ChatUser;
+import wxdgaming.webim.bean.ChatRoom;
+import wxdgaming.webim.bean.ChatUser;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -43,9 +43,11 @@ public class DataService extends HoldRunApplication {
             ChatRoom chatRoom = (ChatRoom) value;
             roomMap.put(chatRoom.getRoomId(), chatRoom);
         }
-        if (!roomMap.containsKey(1L)) {
-            ChatRoom publicChatRoom = new ChatRoom().setSystem(true).setRoomId(1).setMaster("系统").setTitle("公共聊天室").setMaxUser(1000);
-            roomMap.put(publicChatRoom.getRoomId(), publicChatRoom);
+        if (BootConfig.getIns().sid() == 1) {
+            if (!roomMap.containsKey(1L)) {
+                ChatRoom publicChatRoom = new ChatRoom().setSystem(true).setRoomId(1).setMaster("系统").setTitle("公共聊天室").setMaxUser(1000);
+                roomMap.put(publicChatRoom.getRoomId(), publicChatRoom);
+            }
         }
     }
 

@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import wxdgaming.boot2.starter.net.SocketSession;
-import wxdgaming.webim.service.bean.ChatUser;
+import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.service.module.chat.AbstractProcessor;
 
 /**

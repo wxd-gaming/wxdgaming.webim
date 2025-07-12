@@ -12,11 +12,10 @@ import wxdgaming.boot2.core.lang.AssertException;
 import wxdgaming.boot2.core.util.AssertUtil;
 import wxdgaming.boot2.starter.net.SocketSession;
 import wxdgaming.boot2.starter.net.pojo.IWebSocketStringListener;
-import wxdgaming.webim.service.bean.ChatUser;
+import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.service.module.chat.AbstractProcessor;
 import wxdgaming.webim.service.module.chat.ChatService;
 import wxdgaming.webim.service.module.data.DataService;
-import wxdgaming.webim.service.module.user.ChatUserService;
 
 import java.util.HashMap;
 
@@ -31,15 +30,13 @@ import java.util.HashMap;
 public class WebSocketStringListener extends HoldRunApplication implements IWebSocketStringListener {
 
     final ChatService chatService;
-    final ChatUserService chatUserService;
     final DataService dataService;
 
     HashMap<String, AbstractProcessor> processorMap = new HashMap<>();
 
     @Inject
-    public WebSocketStringListener(ChatService chatService, ChatUserService chatUserService, DataService dataService) {
+    public WebSocketStringListener(ChatService chatService, DataService dataService) {
         this.chatService = chatService;
-        this.chatUserService = chatUserService;
         this.dataService = dataService;
     }
 

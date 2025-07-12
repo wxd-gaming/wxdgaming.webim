@@ -1,21 +1,23 @@
-package wxdgaming.webim.service.module.user.api;
+package wxdgaming.webim.login.module.user.api;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import wxdgaming.boot2.core.ann.Param;
+import wxdgaming.boot2.core.chatset.StringUtils;
 import wxdgaming.boot2.core.format.HexId;
 import wxdgaming.boot2.core.io.Objects;
 import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.core.util.AssertUtil;
+import wxdgaming.boot2.core.util.Md5Util;
 import wxdgaming.boot2.core.util.SingletonLockUtil;
 import wxdgaming.boot2.starter.net.ann.HttpRequest;
 import wxdgaming.boot2.starter.net.ann.RequestMapping;
 import wxdgaming.boot2.starter.net.server.http.HttpContext;
-import wxdgaming.webim.service.bean.ChatUser;
-import wxdgaming.webim.service.module.data.DataService;
-import wxdgaming.webim.service.module.user.ChatUserService;
+import wxdgaming.webim.bean.ChatUser;
+import wxdgaming.webim.bean.RoomServerMapping;
+import wxdgaming.webim.login.module.inner.InnerService;
+import wxdgaming.webim.login.module.user.ChatUserService;
 
 /**
  * 注册接口
@@ -30,13 +32,13 @@ public class ChatUserController {
 
     static final HexId hexId = new HexId(1);
 
+    final InnerService innerService;
     final ChatUserService chatUserService;
-    final DataService dataService;
 
     @Inject
-    public ChatUserController(ChatUserService chatUserService, DataService dataService) {
+    public ChatUserController(ChatUserService chatUserService, InnerService innerService) {
         this.chatUserService = chatUserService;
-        this.dataService = dataService;
+        this.innerService = innerService;
     }
 
     @HttpRequest
@@ -97,14 +99,17 @@ public class ChatUserController {
     RunResult loginSuccess(ChatUser chatUser) {
         String token = chatUserService.token(chatUser);
 
-        if (chatUser.getUid() == 0) {
-            chatUser.setUid(hexId.newId());
+        if (StringUtils.isBlank(chatUser.getOpenId())) {
+            chatUser.setOpenId(Md5Util.md5DigestEncode(chatUser.getName(), chatUserService.getOpenIdKey()));
             chatUserService.saveChatUser(chatUser);
         }
 
+        RoomServerMapping roomServerMapping = innerService.getRoomServerMappingMap().get(1);
+
         return RunResult.ok()
                 .fluentPut("name", chatUser.getName())
-                .fluentPut("uid", chatUser.getUid())
+                .fluentPut("openId", chatUser.getOpenId())
+                .fluentPut("port", roomServerMapping.getPort())
                 .fluentPut("token", token);
 
     }

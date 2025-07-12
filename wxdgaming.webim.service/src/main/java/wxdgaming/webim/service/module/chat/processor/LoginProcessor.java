@@ -3,8 +3,11 @@ package wxdgaming.webim.service.module.chat.processor;
 import com.alibaba.fastjson.JSONObject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
+import wxdgaming.boot2.core.ann.Value;
+import wxdgaming.boot2.core.token.JsonToken;
+import wxdgaming.boot2.core.token.JsonTokenParse;
 import wxdgaming.boot2.starter.net.SocketSession;
-import wxdgaming.webim.service.bean.ChatUser;
+import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.service.module.chat.AbstractProcessor;
 
 /**
@@ -17,6 +20,11 @@ import wxdgaming.webim.service.module.chat.AbstractProcessor;
 @Singleton
 public class LoginProcessor extends AbstractProcessor {
 
+    @Value(path = "json.token.key", nestedPath = true)
+    private String jsonTokenKey;
+    @Value(path = "openIdKey")
+    private String openIdKey;
+
     @Override public String type() {
         return "login";
     }
@@ -25,9 +33,16 @@ public class LoginProcessor extends AbstractProcessor {
         return false;
     }
 
+    public ChatUser parseChatUser(String token) {
+        JsonToken jsonToken = JsonTokenParse.parse(jsonTokenKey, token);
+        String name = jsonToken.getString("name");
+        String openId = jsonToken.getString("openId");
+        return new ChatUser().setName(name).setOpenId(openId);
+    }
+
     @Override public void process(SocketSession socketSession, ChatUser self, JSONObject jsonObject) {
         String token = jsonObject.getString("token");
-        ChatUser chatUser = this.chatUserService.parseChatUser(token);
+        ChatUser chatUser = this.parseChatUser(token);
         socketSession.bindData("user", chatUser);
 
         log.info("用户登录: {} 上线 进入公共聊天室", chatUser.getName());

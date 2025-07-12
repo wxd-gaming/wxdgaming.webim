@@ -1,11 +1,11 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="WebIMServiceApplication" type="Application" factoryName="Application" nameIsGenerated="true">
-    <option name="MAIN_CLASS_NAME" value="wxdgaming.webim.service.WebIMServiceApplication" />
-    <module name="wxdgaming.webim.service" />
+  <configuration default="false" name="WebIMLoginApplication" type="Application" factoryName="Application" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="wxdgaming.webim.login.WebIMLoginApplication" />
+    <module name="wxdgaming.webim.login" />
     <option name="VM_PARAMETERS" value="-ea -server -Dfile.encoding=UTF-8 -Dlogback.configurationFile=logback-debug.xml -XX:-OmitStackTraceInFastThrow" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="wxdgaming.webim.service.*" />
+        <option name="PATTERN" value="wxdgaming.webim.login.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

@@ -8,10 +8,9 @@ import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.core.timer.MyClock;
 import wxdgaming.boot2.starter.net.SocketSession;
 import wxdgaming.boot2.starter.scheduled.ann.Scheduled;
-import wxdgaming.webim.service.bean.ChatRoom;
-import wxdgaming.webim.service.bean.ChatUser;
+import wxdgaming.webim.bean.ChatRoom;
+import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.service.module.data.DataService;
-import wxdgaming.webim.service.module.user.ChatUserService;
 
 import java.util.List;
 import java.util.Map;
@@ -26,12 +25,10 @@ import java.util.Map;
 @Singleton
 public class ChatService extends HoldRunApplication {
 
-    final ChatUserService chatUserService;
     final DataService dataService;
 
     @Inject
-    public ChatService(ChatUserService chatUserService, DataService dataService) {
-        this.chatUserService = chatUserService;
+    public ChatService(DataService dataService) {
         this.dataService = dataService;
     }
 

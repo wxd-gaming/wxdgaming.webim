@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import wxdgaming.boot2.core.util.AssertUtil;
 import wxdgaming.boot2.starter.net.SocketSession;
-import wxdgaming.webim.service.bean.ChatRoom;
-import wxdgaming.webim.service.bean.ChatUser;
+import wxdgaming.webim.bean.ChatRoom;
+import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.service.module.chat.AbstractProcessor;
 
 /**

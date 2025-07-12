@@ -1,7 +1,7 @@
 debug: true
 gid: 1
 sid: 1
-sname: "社交"
+sname: "登录"
 serverType: 1
 executor:
   basic:
@@ -29,13 +29,12 @@ http:
 socket:
   server:
     debug: false
-    port: 8011
-    enabledHttp: false                                        #是否启用http
+    port: 8081
+    enabledHttp: true                                        #是否启用http
     enabledTcp: false                                        #是否启用tcp
     enabledScheduledFlush: true                              # 开启定时器flush
     scheduledFlushMs: 10                                     #定时调用flush的频率单位是ms
-    enabledWebSocket: true                                   #是否启用websocket
-    webSocketPrefix: "/wxd-chat"                                   #websocket前缀
+    enabledWebSocket: false                                   #是否启用websocket
     maxAggregatorLength: 64                                  #聚合器最大长度
     maxFrameBytes: -1                                        #单个消息最大长度
     maxFrameLength: -1                                       #一秒钟接收消息最大数量
@@ -53,10 +52,9 @@ socket:
 
 db:
   mapdb:
-    path: "data-base/history.db"
+    path: "data-base/user.db"
 
 openIdKey: "sdfsfwge2353gSAWOIFu09w34rdvf09w34"
-loginServerUrl: "http://127.0.0.1:8081"
 innerAuthorizationKey: "3y345gvfew9023rhvf0923n90"
 
 json:

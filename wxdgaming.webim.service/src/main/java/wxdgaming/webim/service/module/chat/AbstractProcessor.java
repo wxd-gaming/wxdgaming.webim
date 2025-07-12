@@ -3,9 +3,8 @@ package wxdgaming.webim.service.module.chat;
 import com.alibaba.fastjson.JSONObject;
 import com.google.inject.Inject;
 import wxdgaming.boot2.starter.net.SocketSession;
-import wxdgaming.webim.service.bean.ChatUser;
+import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.service.module.data.DataService;
-import wxdgaming.webim.service.module.user.ChatUserService;
 
 /**
  * 处理器
@@ -16,7 +15,6 @@ import wxdgaming.webim.service.module.user.ChatUserService;
 public abstract class AbstractProcessor {
 
     @Inject protected ChatService chatService;
-    @Inject protected ChatUserService chatUserService;
     @Inject protected DataService dataService;
 
     public abstract String type();
