@@ -10,8 +10,10 @@ import wxdgaming.boot2.starter.net.ChannelUtil;
 import wxdgaming.boot2.starter.net.ann.HttpRequest;
 import wxdgaming.boot2.starter.net.ann.RequestMapping;
 import wxdgaming.boot2.starter.net.server.http.HttpContext;
-import wxdgaming.webim.bean.RoomServerMapping;
+import wxdgaming.webim.bean.ServerMapping;
 import wxdgaming.webim.login.module.inner.InnerService;
+
+import java.util.ArrayList;
 
 /**
  * 内部转发
@@ -31,20 +33,22 @@ public class InnerController extends HoldRunApplication {
         this.innerService = innerService;
     }
 
-
     @HttpRequest()
-    public RunResult syncRoomServer(HttpContext httpContext, @Body RoomServerMapping roomServerMapping) {
+    public RunResult syncRoomServer(HttpContext httpContext, @Body ServerMapping serverMapping) {
         String ip = ChannelUtil.getIP(httpContext.getCtx().channel());
-        roomServerMapping.setIp(ip);
-        log.info("syncRoomServer: {}", roomServerMapping);
-        innerService.getRoomServerMappingMap().put(roomServerMapping.getSid(), roomServerMapping);
+        serverMapping.setIp(ip);
+        log.info("syncRoomServer: {}", serverMapping);
+        innerService.getRoomServerMappingMap().put(serverMapping.getSid(), serverMapping);
         return RunResult.OK;
     }
 
     @HttpRequest()
-    public RunResult syncGatewayServer(HttpContext httpContext, @Body RoomServerMapping roomServerMapping) {
-
-        return RunResult.OK;
+    public RunResult syncGatewayServer(HttpContext httpContext, @Body ServerMapping serverMapping) {
+        String ip = ChannelUtil.getIP(httpContext.getCtx().channel());
+        serverMapping.setIp(ip);
+        log.info("syncGatewayServer: {}", serverMapping);
+        innerService.getGatewayServerMappingMap().put(serverMapping.getSid(), serverMapping);
+        return RunResult.ok().fluentPut("roomServerList", new ArrayList<>(innerService.getRoomServerMappingMap().values()));
     }
 
 }

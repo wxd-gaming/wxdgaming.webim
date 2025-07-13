@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="WebIMGatewayApplication" type="Application" factoryName="Application" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="wxdgaming.webim.gateway.WebIMGatewayApplication" />
+    <module name="wxdgaming.webim.gateway" />
+    <option name="VM_PARAMETERS" value="-ea -server -Dfile.encoding=UTF-8 -Dlogback.configurationFile=logback-debug.xml -XX:-OmitStackTraceInFastThrow" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="wxdgaming.webim.gateway.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

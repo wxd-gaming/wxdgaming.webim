@@ -4,7 +4,7 @@ import com.google.inject.Singleton;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import wxdgaming.boot2.core.HoldRunApplication;
-import wxdgaming.webim.bean.RoomServerMapping;
+import wxdgaming.webim.bean.ServerMapping;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public class InnerService extends HoldRunApplication {
 
-    ConcurrentHashMap<Integer, RoomServerMapping> roomServerMappingMap = new ConcurrentHashMap<>();
+    ConcurrentHashMap<Integer, ServerMapping> gatewayServerMappingMap = new ConcurrentHashMap<>();
+    ConcurrentHashMap<Integer, ServerMapping> roomServerMappingMap = new ConcurrentHashMap<>();
 
 }

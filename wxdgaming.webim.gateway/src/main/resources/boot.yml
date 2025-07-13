@@ -29,13 +29,13 @@ http:
 socket:
   server:
     debug: false
-    port: 8011
-    enabledHttp: false                                        #是否启用http
+    port: 8012
+    enabledHttp: false                                       #是否启用http
     enabledTcp: false                                        #是否启用tcp
     enabledScheduledFlush: true                              # 开启定时器flush
     scheduledFlushMs: 10                                     #定时调用flush的频率单位是ms
     enabledWebSocket: true                                   #是否启用websocket
-    webSocketPrefix: "/wxd-chat"                                   #websocket前缀
+    webSocketPrefix: "/wxd-chat"                             #websocket前缀
     maxAggregatorLength: 64                                  #聚合器最大长度
     maxFrameBytes: -1                                        #单个消息最大长度
     maxFrameLength: -1                                       #一秒钟接收消息最大数量
@@ -51,11 +51,31 @@ socket:
       showRequest: true
       showResponse: true
 
-db:
-  mapdb:
-    path: "data-base/history.db"
+  client-forward:
+    debug: false
+    connectTimeout: 500                                       #创建链接的超时时间
+    enabledScheduledFlush: true                               # 开启定时器flush
+    scheduledFlushMs: 10                                      #定时调用flush的频率单位是ms
+    enabledWebSocket: true                                    #是否启用websocket
+    webSocketPrefix: "/wxd-chat"                              #websocket前缀
+    enabledReconnection: false                                #是否启用重连
+    enabledSSL: false
+    maxAggregatorLength: 64                                   #聚合器最大长度
+    maxConnectionCount: 1
+    maxFrameBytes: -1                                          #单个消息最大长度
+    maxFrameLength: -1                                         #一秒钟接收消息最大数量
+    sslProtocolType: TLS                                       #ssll类型
+    sslKeyStorePath: ""                                        #jks证书路径
+    sslPasswordPath: ""                                        #jks证书密码路径
+    idleTimeout: 0
+    writeTimeout: 0
+    readTimeout: 0
+    recvByteBufM: 12                                           #接收缓冲区大小 单位MB
+    writeByteBufM: 12                                          #发送缓冲区大小 单位MB
 
 openIdKey: "sdfsfwge2353gSAWOIFu09w34rdvf09w34"
+loginServerUrl: "http://127.0.0.1:8081"
+innerAuthorizationKey: "3y345gvfew9023rhvf0923n90"
 
 json:
   token:

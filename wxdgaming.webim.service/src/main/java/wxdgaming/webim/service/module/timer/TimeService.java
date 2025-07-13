@@ -7,15 +7,18 @@ import com.google.inject.name.Named;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import lombok.extern.slf4j.Slf4j;
 import wxdgaming.boot2.core.HoldRunApplication;
+import wxdgaming.boot2.core.Throw;
 import wxdgaming.boot2.core.ann.Init;
 import wxdgaming.boot2.core.ann.Value;
 import wxdgaming.boot2.core.chatset.json.FastJsonUtil;
 import wxdgaming.boot2.core.executor.ExecutorWith;
 import wxdgaming.boot2.core.util.Md5Util;
 import wxdgaming.boot2.starter.net.httpclient.HttpBuilder;
+import wxdgaming.boot2.starter.net.httpclient.PostText;
+import wxdgaming.boot2.starter.net.httpclient.Response;
 import wxdgaming.boot2.starter.net.server.SocketServerConfig;
 import wxdgaming.boot2.starter.scheduled.ann.Scheduled;
-import wxdgaming.webim.bean.RoomServerMapping;
+import wxdgaming.webim.bean.ServerMapping;
 import wxdgaming.webim.service.module.data.DataService;
 
 import java.util.HashSet;
@@ -59,18 +62,24 @@ public class TimeService extends HoldRunApplication {
     @ExecutorWith(useVirtualThread = true)
     public void syncRoomServer2LoginServer() {
 
-        RoomServerMapping roomServerMapping = new RoomServerMapping();
-        roomServerMapping.setSid(sid);
-        roomServerMapping.setPort(port);
-        roomServerMapping.setRoomIds(new HashSet<>(this.dataService.getRoomMap().keySet()));
-        String jsonString = FastJsonUtil.toJSONString(roomServerMapping, SerializerFeature.SortField, SerializerFeature.MapSortField);
+        ServerMapping serverMapping = new ServerMapping();
+        serverMapping.setSid(sid);
+        serverMapping.setPort(port);
+        serverMapping.setRoomIds(new HashSet<>(this.dataService.getRoomMap().keySet()));
+        String jsonString = FastJsonUtil.toJSONString(serverMapping, SerializerFeature.SortField, SerializerFeature.MapSortField);
 
         String authorization = Md5Util.md5DigestEncode(jsonString, innerAuthorizationKey);
 
-        String bodyString = HttpBuilder.postJson(loginServerUrl + "/inner/syncRoomServer", jsonString)
+        Response<PostText> request = HttpBuilder.postJson(loginServerUrl + "/inner/syncRoomServer", jsonString)
                 .header(HttpHeaderNames.AUTHORIZATION, authorization)
-                .request()
-                .bodyString();
+                .request();
+
+        if (!request.isSuccess()) {
+            log.error("访问登陆服务器失败{}", Throw.ofString(request.getException(), false));
+            return;
+        }
+
+        String bodyString = request.bodyString();
 
         log.info("添加房间服务器映射结果:{}", bodyString);
 

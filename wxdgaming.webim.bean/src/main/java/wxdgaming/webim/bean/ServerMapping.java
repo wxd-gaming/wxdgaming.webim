@@ -1,11 +1,9 @@
 package wxdgaming.webim.bean;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import wxdgaming.boot2.core.lang.ObjectBase;
-import wxdgaming.boot2.starter.net.SocketSession;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -20,7 +18,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class RoomServerMapping extends ObjectBase implements Serializable {
+public class ServerMapping extends ObjectBase implements Serializable {
 
     @Serial private static final long serialVersionUID = 1L;
 
@@ -28,7 +26,5 @@ public class RoomServerMapping extends ObjectBase implements Serializable {
     private String ip;
     private int port;
     private Set<Long> roomIds;
-    @JSONField(serialize = false, deserialize = false)
-    private transient SocketSession socketSession;
 
 }

@@ -15,7 +15,7 @@ import wxdgaming.boot2.starter.net.ann.HttpRequest;
 import wxdgaming.boot2.starter.net.ann.RequestMapping;
 import wxdgaming.boot2.starter.net.server.http.HttpContext;
 import wxdgaming.webim.bean.ChatUser;
-import wxdgaming.webim.bean.RoomServerMapping;
+import wxdgaming.webim.bean.ServerMapping;
 import wxdgaming.webim.login.module.inner.InnerService;
 import wxdgaming.webim.login.module.user.ChatUserService;
 
@@ -104,12 +104,12 @@ public class ChatUserController {
             chatUserService.saveChatUser(chatUser);
         }
 
-        RoomServerMapping roomServerMapping = innerService.getRoomServerMappingMap().get(1);
+        ServerMapping serverMapping = innerService.getRoomServerMappingMap().get(1);
 
         return RunResult.ok()
                 .fluentPut("name", chatUser.getName())
                 .fluentPut("openId", chatUser.getOpenId())
-                .fluentPut("port", roomServerMapping.getPort())
+                .fluentPut("port", serverMapping.getPort())
                 .fluentPut("token", token);
 
     }

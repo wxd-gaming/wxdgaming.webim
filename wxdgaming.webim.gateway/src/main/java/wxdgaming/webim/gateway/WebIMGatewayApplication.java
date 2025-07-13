@@ -3,7 +3,6 @@ package wxdgaming.webim.gateway;
 import wxdgaming.boot2.core.CoreScan;
 import wxdgaming.boot2.starter.RunApplicationMain;
 import wxdgaming.boot2.starter.WxdApplication;
-import wxdgaming.boot2.starter.batis.mapdb.MapDBScan;
 import wxdgaming.boot2.starter.net.SocketScan;
 import wxdgaming.boot2.starter.scheduled.ScheduledScan;
 
@@ -14,7 +13,6 @@ public class WebIMGatewayApplication {
                 CoreScan.class,
                 ScheduledScan.class,
                 SocketScan.class,
-                MapDBScan.class,
                 WebIMGatewayApplication.class
         );
         runApplication.start();
