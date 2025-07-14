@@ -14,15 +14,15 @@ import wxdgaming.boot2.starter.net.server.http.HttpListenerFactory;
 import java.util.function.Consumer;
 
 /**
- * 网关到游戏服的连接
+ * 网关连接到房间服务的连接
  *
  * @author: wxd-gaming(無心道, 15388152619)
- * @version: 2025-06-03 10:13
- **/
+ * @version: 2025-07-14 13:26
+ */
 @Setter
-public class Gateway2GameSocketClientImpl extends SocketClient {
+public class Gateway2RoomServerSocketClientImpl extends SocketClient {
 
-    public Gateway2GameSocketClientImpl(SocketClientConfig config) {
+    public Gateway2RoomServerSocketClientImpl(SocketClientConfig config) {
         super(config);
     }
 

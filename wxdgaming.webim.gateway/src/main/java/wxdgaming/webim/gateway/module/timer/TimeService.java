@@ -27,7 +27,7 @@ import wxdgaming.boot2.starter.net.server.http.HttpListenerFactory;
 import wxdgaming.boot2.starter.scheduled.ann.Scheduled;
 import wxdgaming.webim.bean.ServerMapping;
 import wxdgaming.webim.gateway.module.data.DataCenterService;
-import wxdgaming.webim.gateway.module.service.Gateway2GameSocketClientImpl;
+import wxdgaming.webim.gateway.module.service.Gateway2RoomServerSocketClientImpl;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -50,7 +50,7 @@ public class TimeService extends HoldRunApplication {
     @Value(path = "innerAuthorizationKey")
     private String innerAuthorizationKey;
     final DataCenterService dataCenterService;
-    final ConcurrentHashMap<Integer, Gateway2GameSocketClientImpl> roomServerMap = new ConcurrentHashMap<>();
+    final ConcurrentHashMap<Integer, Gateway2RoomServerSocketClientImpl> roomServerMap = new ConcurrentHashMap<>();
 
     final ProtoListenerFactory protoListenerFactory;
     final HttpListenerFactory httpListenerFactory;
@@ -123,13 +123,13 @@ public class TimeService extends HoldRunApplication {
     /** 网关主动连游戏服 */
     public void checkGatewaySession(ServerMapping roomServerMapping) {
 
-        Gateway2GameSocketClientImpl gatewaySocketClient = roomServerMap.computeIfAbsent(sid, l -> {
+        Gateway2RoomServerSocketClientImpl gatewaySocketClient = roomServerMap.computeIfAbsent(sid, l -> {
             SocketClientConfig socketClientConfig = (SocketClientConfig) socketForwardConfig.clone();
             socketClientConfig.setHost(roomServerMapping.getIp());
             socketClientConfig.setPort(roomServerMapping.getPort());
             socketClientConfig.setMaxConnectionCount(1);
             socketClientConfig.setEnabledReconnection(false);
-            Gateway2GameSocketClientImpl socketClient = new Gateway2GameSocketClientImpl(socketClientConfig);
+            Gateway2RoomServerSocketClientImpl socketClient = new Gateway2RoomServerSocketClientImpl(socketClientConfig);
             socketClient.init(protoListenerFactory, httpListenerFactory);
             return socketClient;
         });
