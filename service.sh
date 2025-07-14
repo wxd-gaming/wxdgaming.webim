@@ -2,7 +2,7 @@
 
 
 MEM=960m
-JAR=`pwd`/webim.jar
+JAR=`pwd`/bootstrap.jar
 PID=`ps -ef | grep ${JAR} | grep -v grep | awk '{print $2}'`
 
 exists()

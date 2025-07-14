@@ -20,6 +20,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InnerService extends HoldRunApplication {
 
     ConcurrentHashMap<Integer, ServerMapping> gatewayServerMappingMap = new ConcurrentHashMap<>();
-    ConcurrentHashMap<Integer, ServerMapping> roomServerMappingMap = new ConcurrentHashMap<>();
+    /**
+     * 房间服务器映射
+     * <p>key: 进程id
+     * <p>value: 房间服务器映射
+     */
+    ConcurrentHashMap<Integer, ServerMapping> room4ServerMappingMap = new ConcurrentHashMap<>();
 
 }

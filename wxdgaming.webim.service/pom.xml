@@ -20,7 +20,7 @@
     </dependencies>
 
     <build>
-        <finalName>webim</finalName>
+        <finalName>bootstrap</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -56,22 +56,17 @@
                         </goals>
                         <configuration>
                             <target>
-                                <copy todir="${project.build.directory}/run/html" overwrite="true">
-                                    <fileset dir="${project.basedir}/../html" erroronmissingdir="false">
-                                        <include name="*"/>
-                                    </fileset>
-                                </copy>
-                                <copy todir="${project.build.directory}/run" overwrite="true">
+                                <copy todir="${project.basedir}/../target/webim-room" overwrite="true">
                                     <fileset dir="${project.basedir}/.." erroronmissingdir="false">
                                         <include name="*.sh"/>
                                     </fileset>
                                 </copy>
-                                <copy todir="${project.build.directory}/run" overwrite="true">
+                                <copy todir="${project.basedir}/../target/webim-room" overwrite="true">
                                     <fileset dir="${project.basedir}/src/main/resources" erroronmissingdir="false">
                                         <include name="*"/>
                                     </fileset>
                                 </copy>
-                                <copy todir="${project.build.directory}/run" overwrite="true">
+                                <copy todir="${project.basedir}/../target/webim-room" overwrite="true">
                                     <fileset dir="${project.build.directory}" erroronmissingdir="false">
                                         <include name="*.jar"/>
                                     </fileset>

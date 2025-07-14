@@ -104,7 +104,7 @@ public class ChatUserController {
             chatUserService.saveChatUser(chatUser);
         }
 
-        ServerMapping serverMapping = innerService.getRoomServerMappingMap().get(1);
+        ServerMapping serverMapping = innerService.getRoom4ServerMappingMap().get(1);
 
         return RunResult.ok()
                 .fluentPut("name", chatUser.getName())

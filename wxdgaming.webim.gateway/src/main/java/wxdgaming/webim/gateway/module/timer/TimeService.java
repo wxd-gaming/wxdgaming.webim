@@ -51,6 +51,12 @@ public class TimeService extends HoldRunApplication {
     private String innerAuthorizationKey;
     final DataCenterService dataCenterService;
     final ConcurrentHashMap<Integer, Gateway2RoomServerSocketClientImpl> roomServerMap = new ConcurrentHashMap<>();
+    /**
+     * 房间服务器映射
+     * <p>key: 房间id
+     * <p>value: 房间服务器id
+     */
+    final ConcurrentHashMap<Long, Integer> roomId4RoomServerMapping = new ConcurrentHashMap<>();
 
     final ProtoListenerFactory protoListenerFactory;
     final HttpListenerFactory httpListenerFactory;
@@ -116,6 +122,9 @@ public class TimeService extends HoldRunApplication {
             roomServerMapping.setIp(mapping.getIp());
             roomServerMapping.setPort(mapping.getPort());
             checkGatewaySession(roomServerMapping);
+            for (Long roomId : roomServerMapping.getRoomIds()) {
+                roomId4RoomServerMapping.put(roomId, roomServerMapping.getSid());
+            }
         }
 
     }

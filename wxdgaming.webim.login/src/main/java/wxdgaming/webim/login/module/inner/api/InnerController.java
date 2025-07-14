@@ -38,7 +38,7 @@ public class InnerController extends HoldRunApplication {
         String ip = ChannelUtil.getIP(httpContext.getCtx().channel());
         serverMapping.setIp(ip);
         log.info("syncRoomServer: {}", serverMapping);
-        innerService.getRoomServerMappingMap().put(serverMapping.getSid(), serverMapping);
+        innerService.getRoom4ServerMappingMap().put(serverMapping.getSid(), serverMapping);
         return RunResult.OK;
     }
 
@@ -48,7 +48,7 @@ public class InnerController extends HoldRunApplication {
         serverMapping.setIp(ip);
         log.info("syncGatewayServer: {}", serverMapping);
         innerService.getGatewayServerMappingMap().put(serverMapping.getSid(), serverMapping);
-        return RunResult.ok().fluentPut("roomServerList", new ArrayList<>(innerService.getRoomServerMappingMap().values()));
+        return RunResult.ok().fluentPut("roomServerList", new ArrayList<>(innerService.getRoom4ServerMappingMap().values()));
     }
 
 }
