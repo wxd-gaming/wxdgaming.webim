@@ -73,7 +73,7 @@
 
         #ul_user_box li.li_user:hover {background-color: rgba(243, 106, 4, 0.93);padding-left: 5px;padding-top: 8px;padding-bottom: 8px;}
 
-        .nav-user-close{position: absolute;right: 0;top: calc(50% - 80px);height: 120px;width: 15px;background-color: #00a2d4;border-radius: 4px 0 0 4px;cursor: pointer;z-index: 999;}
+        .nav-user-close {position: absolute;right: 0;top: calc(50% - 80px);height: 120px;width: 15px;background-color: #00a2d4;border-radius: 4px 0 0 4px;cursor: pointer;z-index: 999;}
 
     </style>
     <script>
@@ -82,15 +82,17 @@
         let roomId = null;
         let master = null;
         let systemRoom = 0;
+        let useInitEnd = false;
+
+        map.loadSearch();
+        roomId = map.get("roomId");
+        master = decodeURIComponent(map.get("master"));
+        systemRoom = map.get("systemRoom");
+        window.parent.registerRoom(roomId, this);
+        console.log("roomId:", roomId, "master:", master, "window.parent.loginAccount:", window.parent.loginAccount, master === window.parent.loginAccount);
 
         $(() => {
             wxd.loading();
-            map.loadSearch();
-            roomId = map.get("roomId");
-            master = decodeURIComponent(map.get("master"));
-            systemRoom = map.get("systemRoom");
-            window.parent.registerRoom(roomId, this);
-            console.log("roomId:", roomId, "master:", master, "window.parent.loginAccount:", window.parent.loginAccount, master === window.parent.loginAccount);
             if (systemRoom !== "1") {
                 $("#chat-exit-send").removeAttr("disabled");
             }
@@ -125,18 +127,34 @@
                     }
                 }
             });
-
-            /*页面加载完成后拉取历史记录*/
-            window.parent.pullHistoryMessage(roomId);
-
-            setInterval(function () {
-                window.parent.pullUserListMessage(roomId);
-            }, 10 * 1000);
-
+            setTimeout(() => {
+                /*说明当前页面被选中*/
+                let checkedRoomId = sessionStorage.getItem("checkedRoomId");
+                if (checkedRoomId === roomId) {
+                    initEnd();
+                }
+            }, 200);
         });
 
         function closeLoading() {
             wxd.loading_close();
+        }
+
+        /**相当于初始化当前房间*/
+        function initEnd() {
+            if (useInitEnd) return
+            useInitEnd = true;
+            /*页面加载完成后拉取历史记录*/
+            window.parent.pullHistoryMessage(roomId);
+
+            setInterval(function () {
+                /**如果在当前房间才会刷新用户列表*/
+                let checkedRoomId = sessionStorage.getItem("checkedRoomId");
+                if (checkedRoomId === roomId) {
+                    window.parent.pullUserListMessage(roomId);
+                }
+            }, 10 * 1000);
+
         }
 
         let uidColor = new wxd.Map();
@@ -175,7 +193,7 @@
             }
         }
 
-        function onReceiveMessage(msg) {
+        function onReceiveMessage(msg, isHistory) {
 
             let bgColor = "ffffff";
 
@@ -236,11 +254,11 @@
             $("#div_img_max_box").show();
         }
 
-        function nav_user_box(){
+        function nav_user_box() {
             $('#user-box').toggle();
-            if ($('#user-box').is(':visible')){
+            if ($('#user-box').is(':visible')) {
                 $('#chat-box').css('right', '180px');
-            }else{
+            } else {
                 $('#chat-box').css('right', '10px');
             }
         }

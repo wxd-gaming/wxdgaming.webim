@@ -145,7 +145,7 @@
                     /*正常聊天*/
                     let roomId = json.roomId;
                     let self = roomMap.get(roomId);
-                    self.onReceiveMessage(json);
+                    self.onReceiveMessage(json, false);
                 } else if (cmd === "roomList") {
                     /*下发的房间列表*/
                     let roomList = json.roomList;
@@ -174,7 +174,7 @@
                     let historyList = json.history;
                     for (const history of historyList) {
                         let historyData = JSON.parse(history);
-                        self.onReceiveMessage(historyData);
+                        self.onReceiveMessage(historyData, true);
                     }
 
                     self.onReceiveUser(json.userList);
@@ -277,7 +277,7 @@
             }
             roomMap.put(roomId, "put");
             let appendUi = `
-<li id="room_${room.roomId}" onclick="checkRoom(${room.roomId})" title="${room.title}(${room.roomId}), 管理: ${room.master}">${room.title}(ID: ${room.roomId}, 管理: ${room.master})</li>
+<li id="room_${room.roomId}" onclick="checkRoom(${room.roomId})" title="${room.title}(${room.roomId}), 管理: ${room.master}">${room.title}(管理: ${room.master})<br>ID: ${room.roomId}</li>
 `;
             $(".title").append(appendUi);
 
@@ -293,6 +293,14 @@
 
             $("#room_" + roomId).addClass("checked");
             $("#content_" + roomId).addClass("checkedObject");
+            /*存储当前选择的房间id*/
+            sessionStorage.setItem("checkedRoomId", roomId);
+            /*激活当前房间*/
+            var newVar = roomMap.get(roomId);
+            if (newVar == null || newVar === "put") {
+                return;
+            }
+            newVar.initEnd();
         }
 
 
