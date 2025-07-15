@@ -137,9 +137,7 @@
             };
 
             wsClient.onClose = () => {
-                wxd.message.alert("断开连接，刷新页面", "提示", "确定", function () {
-                    window.top.location.reload();
-                });
+                console.log("onClose");
             };
 
             wsClient.onRead = (msg) => {
