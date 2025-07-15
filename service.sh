@@ -1,9 +1,11 @@
 #!/bin/bash
 
 
-MEM=960m
+MEM=300m
 JAR=`pwd`/bootstrap.jar
 PID=`ps -ef | grep ${JAR} | grep -v grep | awk '{print $2}'`
+
+mkdir -p target
 
 exists()
 {

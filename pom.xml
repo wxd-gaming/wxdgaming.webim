@@ -10,9 +10,9 @@
     <packaging>pom</packaging>
     <modules>
         <module>wxdgaming.webim.bean</module>
-        <module>wxdgaming.webim.service</module>
-        <module>wxdgaming.webim.login</module>
         <module>wxdgaming.webim.gateway</module>
+        <module>wxdgaming.webim.login</module>
+        <module>wxdgaming.webim.service</module>
     </modules>
 
     <properties>
