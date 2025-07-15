@@ -1,4 +1,4 @@
-package wxdgaming.webim.gateway.module.dirve;
+package wxdgaming.webim;
 
 import com.alibaba.fastjson.JSONObject;
 import wxdgaming.boot2.starter.net.SocketSession;

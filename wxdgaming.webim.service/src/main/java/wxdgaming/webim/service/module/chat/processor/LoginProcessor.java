@@ -1,14 +1,18 @@
 package wxdgaming.webim.service.module.chat.processor;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import wxdgaming.boot2.core.ann.Value;
 import wxdgaming.boot2.core.token.JsonToken;
 import wxdgaming.boot2.core.token.JsonTokenParse;
 import wxdgaming.boot2.starter.net.SocketSession;
+import wxdgaming.webim.AbstractProcessor;
 import wxdgaming.webim.bean.ChatUser;
-import wxdgaming.webim.service.module.chat.AbstractProcessor;
+import wxdgaming.webim.service.module.chat.ChatService;
+import wxdgaming.webim.service.module.data.DataService;
+import wxdgaming.webim.util.Utils;
 
 /**
  * 登录处理
@@ -21,9 +25,15 @@ import wxdgaming.webim.service.module.chat.AbstractProcessor;
 public class LoginProcessor extends AbstractProcessor {
 
     @Value(path = "json.token.key", nestedPath = true)
-    private String jsonTokenKey;
-    @Value(path = "openIdKey")
-    private String openIdKey;
+    String jsonTokenKey;
+    final DataService dataService;
+    final ChatService chatService;
+
+    @Inject
+    public LoginProcessor(DataService dataService, ChatService chatService) {
+        this.dataService = dataService;
+        this.chatService = chatService;
+    }
 
     @Override public String type() {
         return "login";
@@ -52,7 +62,7 @@ public class LoginProcessor extends AbstractProcessor {
         dataService.getRoomMap().values().stream()
                 .filter(room -> room.hasUser(chatUser.getName()))
                 .forEach(room -> {
-                    chatService.systemTip(room, "%s 上线".formatted(chatUser.getName()));
+                    Utils.systemTip(room, "%s 上线".formatted(chatUser.getName()));
                     if (room.isSystem()) {
                         room.getUserMap().add(chatUser.getName());
                     }
@@ -69,7 +79,7 @@ public class LoginProcessor extends AbstractProcessor {
                         if (room.isSystem()) {
                             room.getUserMap().remove(chatUser.getName());
                         }
-                        chatService.systemTip(room, "%s 下线".formatted(chatUser.getName()));
+                        Utils.systemTip(room, "%s 下线".formatted(chatUser.getName()));
                     });
 
         });

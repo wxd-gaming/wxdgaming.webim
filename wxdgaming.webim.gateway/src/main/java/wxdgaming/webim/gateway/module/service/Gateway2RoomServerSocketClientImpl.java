@@ -3,6 +3,7 @@ package wxdgaming.webim.gateway.module.service;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
+import lombok.Getter;
 import lombok.Setter;
 import wxdgaming.boot2.starter.net.ChannelUtil;
 import wxdgaming.boot2.starter.net.SocketSession;
@@ -19,11 +20,14 @@ import java.util.function.Consumer;
  * @author: wxd-gaming(無心道, 15388152619)
  * @version: 2025-07-14 13:26
  */
-@Setter
+@Getter
 public class Gateway2RoomServerSocketClientImpl extends SocketClient {
 
-    public Gateway2RoomServerSocketClientImpl(SocketClientConfig config) {
+    private final int roomServerId;
+
+    public Gateway2RoomServerSocketClientImpl(SocketClientConfig config, int roomServerId) {
         super(config);
+        this.roomServerId = roomServerId;
     }
 
     @Override public void start(ProtoListenerFactory protoListenerFactory, HttpListenerFactory httpListenerFactory) {

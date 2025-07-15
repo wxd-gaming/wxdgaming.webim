@@ -1,14 +1,17 @@
 package wxdgaming.webim.service.module.chat.processor;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import wxdgaming.boot2.core.util.AssertUtil;
 import wxdgaming.boot2.starter.net.SocketSession;
+import wxdgaming.webim.AbstractProcessor;
 import wxdgaming.webim.bean.ChatRoom;
 import wxdgaming.webim.bean.ChatUser;
-import wxdgaming.webim.service.module.chat.AbstractProcessor;
+import wxdgaming.webim.service.module.chat.ChatService;
+import wxdgaming.webim.service.module.data.DataService;
 
 /**
  * 创建房间
@@ -19,6 +22,15 @@ import wxdgaming.webim.service.module.chat.AbstractProcessor;
 @Slf4j
 @Singleton
 public class NewRoomProcessor extends AbstractProcessor {
+
+    final DataService dataService;
+    final ChatService chatService;
+
+    @Inject
+    public NewRoomProcessor(DataService dataService, ChatService chatService) {
+        this.dataService = dataService;
+        this.chatService = chatService;
+    }
 
     @Override public String type() {
         return "NewRoom";

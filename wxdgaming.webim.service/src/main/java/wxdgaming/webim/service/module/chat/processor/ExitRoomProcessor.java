@@ -1,13 +1,17 @@
 package wxdgaming.webim.service.module.chat.processor;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.starter.net.SocketSession;
+import wxdgaming.webim.AbstractProcessor;
 import wxdgaming.webim.bean.ChatRoom;
 import wxdgaming.webim.bean.ChatUser;
-import wxdgaming.webim.service.module.chat.AbstractProcessor;
+import wxdgaming.webim.service.module.chat.ChatService;
+import wxdgaming.webim.service.module.data.DataService;
+import wxdgaming.webim.util.Utils;
 
 /**
  * 退出房间
@@ -19,6 +23,15 @@ import wxdgaming.webim.service.module.chat.AbstractProcessor;
 @Singleton
 public class ExitRoomProcessor extends AbstractProcessor {
 
+    final DataService dataService;
+    final ChatService chatService;
+
+    @Inject
+    public ExitRoomProcessor(DataService dataService, ChatService chatService) {
+        this.dataService = dataService;
+        this.chatService = chatService;
+    }
+
     @Override public String type() {
         return "exitRoom";
     }
@@ -27,7 +40,7 @@ public class ExitRoomProcessor extends AbstractProcessor {
         long roomId = jsonObject.getLongValue("roomId");
         ChatRoom chatRoom = dataService.getRoomMap().get(roomId);
         if (chatRoom == null) {
-            chatService.fail(socketSession, "房间不存在");
+            Utils.fail(socketSession, "房间不存在");
             return;
         }
         if (chatRoom.getMaster().equals(self.getName())) {
@@ -37,7 +50,7 @@ public class ExitRoomProcessor extends AbstractProcessor {
         } else {
             chatRoom.removeUser(self.getName());
             chatRoom.getSessionGroup().remove(socketSession);
-            chatService.systemTip(chatRoom, "%s 退出聊天室".formatted(self.getName()));
+            Utils.systemTip(chatRoom, "%s 退出聊天室".formatted(self.getName()));
             socketSession.write(buildExitRoomMessage(chatRoom, self));
         }
     }

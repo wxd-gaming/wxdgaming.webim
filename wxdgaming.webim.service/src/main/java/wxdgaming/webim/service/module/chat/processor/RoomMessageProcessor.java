@@ -2,14 +2,17 @@ package wxdgaming.webim.service.module.chat.processor;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.html.HtmlEscapers;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.core.timer.MyClock;
 import wxdgaming.boot2.starter.net.SocketSession;
+import wxdgaming.webim.AbstractProcessor;
 import wxdgaming.webim.bean.ChatRoom;
 import wxdgaming.webim.bean.ChatUser;
-import wxdgaming.webim.service.module.chat.AbstractProcessor;
+import wxdgaming.webim.service.module.data.DataService;
+import wxdgaming.webim.util.Utils;
 
 /**
  * 聊天消息处理
@@ -21,6 +24,13 @@ import wxdgaming.webim.service.module.chat.AbstractProcessor;
 @Singleton
 public class RoomMessageProcessor extends AbstractProcessor {
 
+    final DataService dataService;
+
+    @Inject
+    public RoomMessageProcessor(DataService dataService) {
+        this.dataService = dataService;
+    }
+
     @Override public String type() {
         return "roomMsg";
     }
@@ -29,11 +39,11 @@ public class RoomMessageProcessor extends AbstractProcessor {
         long roomId = jsonObject.getLongValue("roomId");
         ChatRoom chatRoom = dataService.getRoomMap().get(roomId);
         if (chatRoom == null) {
-            chatService.fail(socketSession, "房间不存在");
+            Utils.fail(socketSession, "房间不存在");
             return;
         }
         if (!chatRoom.hasUser(self.getName())) {
-            chatService.fail(socketSession, "尚未加入该房间");
+            Utils.fail(socketSession, "尚未加入该房间");
             return;
         }
 

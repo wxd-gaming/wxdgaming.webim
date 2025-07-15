@@ -11,6 +11,7 @@ import wxdgaming.boot2.starter.scheduled.ann.Scheduled;
 import wxdgaming.webim.bean.ChatRoom;
 import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.service.module.data.DataService;
+import wxdgaming.webim.util.Utils;
 
 import java.util.List;
 import java.util.Map;
@@ -37,19 +38,9 @@ public class ChatService extends HoldRunApplication {
         dataService.getRoomMap().values().stream()
                 .filter(ChatRoom::isSystem)
                 .filter(chatRoom -> chatRoom.getSessionGroup().size() > 0)
-                .forEach(chatRoom -> systemTip(chatRoom, "请文明聊天，合法合规；请勿发布违法信息，否则将被封号！"));
+                .forEach(chatRoom -> Utils.systemTip(chatRoom, "请文明聊天，合法合规；请勿发布违法信息，否则将被封号！"));
     }
 
-    public void systemTip(ChatRoom chatRoom, String content) {
-        RunResult ok = RunResult.ok();
-        ok.fluentPut("cmd", "roomMsg");
-        ok.fluentPut("roomId", chatRoom.getRoomId());
-        ok.fluentPut("sender", "系统");
-        ok.fluentPut("time", MyClock.nowString());
-        ok.fluentPut("type", "system");
-        ok.fluentPut("content", content);
-        chatRoom.getSessionGroup().write(ok.toJSONString());
-    }
 
     public void sendRoomList(SocketSession socketSession, ChatUser chatUser) {
         List<Map<String, Object>> roomList = dataService.roomListBean(chatUser);
@@ -57,10 +48,6 @@ public class ChatService extends HoldRunApplication {
         ok.fluentPut("cmd", "roomList");
         ok.fluentPut("roomList", roomList);
         socketSession.write(ok.toJSONString());
-    }
-
-    public void fail(SocketSession socketSession, String msg) {
-        socketSession.write(RunResult.fail(msg).toJSONString());
     }
 
 }

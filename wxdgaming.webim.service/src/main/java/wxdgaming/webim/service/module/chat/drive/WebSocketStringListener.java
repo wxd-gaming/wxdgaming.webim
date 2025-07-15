@@ -12,10 +12,11 @@ import wxdgaming.boot2.core.lang.AssertException;
 import wxdgaming.boot2.core.util.AssertUtil;
 import wxdgaming.boot2.starter.net.SocketSession;
 import wxdgaming.boot2.starter.net.pojo.IWebSocketStringListener;
+import wxdgaming.webim.AbstractProcessor;
 import wxdgaming.webim.bean.ChatUser;
-import wxdgaming.webim.service.module.chat.AbstractProcessor;
 import wxdgaming.webim.service.module.chat.ChatService;
 import wxdgaming.webim.service.module.data.DataService;
+import wxdgaming.webim.util.Utils;
 
 import java.util.HashMap;
 
@@ -61,18 +62,18 @@ public class WebSocketStringListener extends HoldRunApplication implements IWebS
             JSONObject jsonObject = FastJsonUtil.parseJSONObject(message);
             String cmd = jsonObject.getString("cmd");
             if (StringUtils.isBlank(cmd)) {
-                chatService.fail(socketSession, ("命令错误"));
+                Utils.fail(socketSession, ("命令错误"));
                 return;
             }
 
             AbstractProcessor abstractProcessor = processorMap.get(cmd.toLowerCase());
             if (abstractProcessor == null) {
-                chatService.fail(socketSession, ("命令错误"));
+                Utils.fail(socketSession, ("命令错误"));
                 return;
             }
             if (abstractProcessor.checkLoginEnd()) {
                 if (bindData == null) {
-                    chatService.fail(socketSession, ("尚未登录"));
+                    Utils.fail(socketSession, ("尚未登录"));
                     return;
                 }
             }
@@ -80,10 +81,10 @@ public class WebSocketStringListener extends HoldRunApplication implements IWebS
         } catch (Exception e) {
             log.error("处理异常: {}, {}", socketSession, message, e);
             if (e instanceof AssertException assertException) {
-                chatService.fail(socketSession, assertException.getMessage());
+                Utils.fail(socketSession, assertException.getMessage());
                 return;
             }
-            chatService.fail(socketSession, "服务器异常");
+            Utils.fail(socketSession, "服务器异常");
         }
     }
 
