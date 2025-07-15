@@ -75,6 +75,10 @@ public class WebSocketDriver extends HoldRunApplication implements IWebSocketStr
                 } else {
                     /*说明需要转发*/
                     String roomId = jsonObject.getString("roomId");
+                    if (StringUtils.isBlank(roomId)) {
+                        socketSession.write(RunResult.fail("房间ID异常").toJSONString());
+                        return;
+                    }
                     Integer room2ServerId = gatewayService.getRoomId4RoomServerMapping().get(roomId);
                     if (room2ServerId == null) {
                         socketSession.write(RunResult.fail("房间不存在").toJSONString());

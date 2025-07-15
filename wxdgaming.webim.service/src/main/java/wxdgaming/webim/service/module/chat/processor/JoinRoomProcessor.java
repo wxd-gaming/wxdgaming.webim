@@ -27,14 +27,14 @@ public class JoinRoomProcessor extends AbstractProcessor {
     }
 
     @Override public void process(SocketSession socketSession, ForwardMessage.Gateway2RoomServer gateway2RoomServer) {
-        String joinRoomId = gateway2RoomServer.getMessage().getString("joinRoomId");
+        String joinRoomId = gateway2RoomServer.getMessage().getString("roomId");
         ChatRoom chatRoom = dataService.getRoomMap().get(joinRoomId);
         if (chatRoom == null) {
             dataService.sendMessage2Gateway(socketSession, gateway2RoomServer, RunResult.fail("房间不存在"));
             return;
         }
         if (StringUtils.isNotBlank(chatRoom.getToken())) {
-            String joinToken = gateway2RoomServer.getMessage().getString("joinToken");
+            String joinToken = gateway2RoomServer.getMessage().getString("roomToken");
             if (!Objects.equals(chatRoom.getToken(), joinToken)) {
                 dataService.sendMessage2Gateway(socketSession, gateway2RoomServer, RunResult.fail("密钥错误"));
                 return;

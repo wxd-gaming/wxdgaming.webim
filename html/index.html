@@ -360,8 +360,8 @@
             }
             let newRoomMessage = new wxd.Map()
                 .put("cmd", "joinRoom")
-                .put("joinRoomId", joinRoomId)
-                .put("joinRoomToken", joinRoomToken)
+                .put("roomId", joinRoomId)
+                .put("roomToken", joinRoomToken)
                 .toJson();
             wsClient.sendMsg(newRoomMessage);
 
