@@ -3,6 +3,8 @@ package wxdgaming.webim.service.module.chat.processor;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import wxdgaming.boot2.core.BootConfig;
+import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.core.util.AssertUtil;
 import wxdgaming.boot2.starter.net.SocketSession;
 import wxdgaming.webim.ForwardMessage;
@@ -18,7 +20,6 @@ import wxdgaming.webim.service.module.chat.AbstractProcessor;
 @Slf4j
 @Singleton
 public class NewRoomProcessor extends AbstractProcessor {
-
 
     @Override public String type() {
         return "NewRoom";
@@ -37,6 +38,14 @@ public class NewRoomProcessor extends AbstractProcessor {
         chatRoom.setMaxUser(1000);
         chatRoom.addUser(gateway2RoomServer.getAccount());
         dataService.getRoomMap().put(chatRoom.getRoomId(), chatRoom);
+        RunResult runResult = RunResult.ok()
+                .fluentPut("roomId", chatRoom.getRoomId())
+                .fluentPut("sid", BootConfig.getIns().sid());
+
+        ForwardMessage.RoomServer2Gateway roomServer2Gateway = new ForwardMessage.RoomServer2Gateway();
+        roomServer2Gateway.setCmd("addNewRoom");
+        roomServer2Gateway.setMessage(runResult);
+        dataService.sendAllGateway(roomServer2Gateway);
 
         dataService.sendRoomList(socketSession, gateway2RoomServer);
     }

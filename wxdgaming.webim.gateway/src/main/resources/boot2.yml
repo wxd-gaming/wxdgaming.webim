@@ -1,7 +1,7 @@
 debug: true
 gid: 1
-sid: 1
-sname: "网关1"
+sid: 2
+sname: "网关2"
 serverType: 1
 executor:
   basic:
@@ -29,7 +29,7 @@ http:
 socket:
   server:
     debug: false
-    port: 8012
+    port: 8013
     enabledHttp: false                                       #是否启用http
     enabledTcp: false                                        #是否启用tcp
     enabledScheduledFlush: true                              # 开启定时器flush

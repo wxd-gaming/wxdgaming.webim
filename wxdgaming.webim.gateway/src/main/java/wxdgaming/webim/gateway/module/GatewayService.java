@@ -147,11 +147,12 @@ public class GatewayService extends HoldRunApplication {
             roomServerMapping.setIp(mapping.getIp());
             roomServerMapping.setPort(mapping.getPort());
             checkGatewaySession(gateway2RoomServer.toJSONString(), roomServerMapping);
-            AtomicInteger atomicInteger = roomServerRoomCountMap.computeIfAbsent(roomServerMapping.getSid(), k -> new AtomicInteger(0));
+            AtomicInteger atomicInteger = new AtomicInteger();
             for (String roomId : roomServerMapping.getRoomIds()) {
                 roomId4RoomServerMapping.put(roomId, roomServerMapping.getSid());
                 atomicInteger.incrementAndGet();
             }
+            roomServerRoomCountMap.put(roomServerMapping.getSid(), atomicInteger);
         }
 
     }
@@ -159,7 +160,7 @@ public class GatewayService extends HoldRunApplication {
     /** 网关主动连游戏服 */
     public void checkGatewaySession(String gatewayServerMapping, ServerMapping roomServerMapping) {
 
-        Gateway2RoomServerSocketProxy gatewaySocketClient = roomServerProxyMap.computeIfAbsent(sid, l -> {
+        Gateway2RoomServerSocketProxy gatewaySocketClient = roomServerProxyMap.computeIfAbsent(roomServerMapping.getSid(), l -> {
             SocketClientConfig socketClientConfig = (SocketClientConfig) socketForwardConfig.clone();
             socketClientConfig.setHost(roomServerMapping.getIp());
             socketClientConfig.setPort(roomServerMapping.getPort());

@@ -14,6 +14,9 @@ import wxdgaming.webim.gateway.module.dirve.AbstractProcessor;
 import wxdgaming.webim.ForwardMessage;
 import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.gateway.module.GatewayService;
+import wxdgaming.webim.gateway.module.service.Gateway2RoomServerSocketProxy;
+
+import java.util.Comparator;
 
 /**
  * 登陆处理器
@@ -97,7 +100,7 @@ public class LoginProcessor extends AbstractProcessor {
         forwardMessage.setClientSessionId(socketSession.getUid());
         forwardMessage.setCmd("login");
         forwardMessage.setMessage(jsonObject);
-        gatewayService.getRoomServerProxyMap().values().forEach(roomServer -> {
+        gatewayService.getRoomServerProxyMap().values().stream().sorted(Comparator.comparingInt(Gateway2RoomServerSocketProxy::getRoomServerId)).forEach(roomServer -> {
             SocketSession idle = roomServer.idle();
             if (idle != null) {
                 idle.write(forwardMessage.toJSONString());

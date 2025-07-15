@@ -99,6 +99,12 @@ public class WebSocketDriver extends HoldRunApplication implements IWebSocketStr
                 }
             } else {
                 ForwardMessage.RoomServer2Gateway forwardMessage = FastJsonUtil.parse(message, ForwardMessage.RoomServer2Gateway.class);
+                String cmd = forwardMessage.getCmd();
+                if (StringUtils.isNotBlank(cmd)) {
+                    AbstractProcessor abstractProcessor = processorMap.get(cmd.toLowerCase());
+                    abstractProcessor.process(socketSession, null, forwardMessage.getMessage());
+                    return;
+                }
                 String jsonString = forwardMessage.getMessage().toJSONString();
                 List<String> accountList = forwardMessage.getAccountList();
                 for (String account : accountList) {

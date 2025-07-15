@@ -160,8 +160,10 @@
                         addRoomUi(room);
                     }
                     if (!loginEnd) {
-                        loginEnd = true;
-                        checkRoom("1");
+                        if (!wxd.isNull(roomMap.get("1"))) {
+                            loginEnd = true;
+                            checkRoom("1");
+                        }
                     }
                 } else if (cmd === "logout") {
                     wxd.message.alert(json.msg, "提示", "确定", function () {

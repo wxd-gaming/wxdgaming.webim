@@ -10,7 +10,7 @@ import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.gateway.module.dirve.AbstractProcessor;
 import wxdgaming.webim.gateway.module.service.Gateway2RoomServerSocketProxy;
 
-import java.util.Map;
+import java.util.Comparator;
 
 /**
  * 创建房间
@@ -29,8 +29,11 @@ public class NewRoomProcessor extends AbstractProcessor {
     @Override public void process(SocketSession socketSession, ChatUser self, JSONObject jsonObject) {
 
         Integer integer = gatewayService.getRoomServerRoomCountMap().entrySet().stream()
-                .min((o1, o2) -> Integer.compare(o2.getValue().get(), o1.getValue().get()))
-                .map(Map.Entry::getKey)
+                .min(Comparator.comparingInt(o -> o.getValue().get()))
+                .map(entry -> {
+                    entry.getValue().incrementAndGet();
+                    return entry.getKey();
+                })
                 .orElse(null);
 
         if (integer == null) {

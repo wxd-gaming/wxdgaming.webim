@@ -1,7 +1,7 @@
 debug: true
 gid: 1
 sid: 1
-sname: "社交"
+sname: "房间服务1"
 serverType: 1
 executor:
   basic:
@@ -29,7 +29,7 @@ http:
 socket:
   server:
     debug: false
-    port: 8011
+    port: 8021
     enabledHttp: false                                        #是否启用http
     enabledTcp: false                                        #是否启用tcp
     enabledScheduledFlush: true                              # 开启定时器flush
