@@ -9,11 +9,12 @@ import wxdgaming.boot2.core.ann.Init;
 import wxdgaming.boot2.core.chatset.StringUtils;
 import wxdgaming.boot2.core.chatset.json.FastJsonUtil;
 import wxdgaming.boot2.core.lang.AssertException;
+import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.core.util.AssertUtil;
 import wxdgaming.boot2.starter.net.SocketSession;
 import wxdgaming.boot2.starter.net.pojo.IWebSocketStringListener;
-import wxdgaming.webim.AbstractProcessor;
-import wxdgaming.webim.bean.ChatUser;
+import wxdgaming.webim.ForwardMessage;
+import wxdgaming.webim.service.module.chat.AbstractProcessor;
 import wxdgaming.webim.service.module.chat.ChatService;
 import wxdgaming.webim.service.module.data.DataService;
 import wxdgaming.webim.util.Utils;
@@ -28,7 +29,7 @@ import java.util.HashMap;
  **/
 @Slf4j
 @Singleton
-public class WebSocketStringListener extends HoldRunApplication implements IWebSocketStringListener {
+public class WebSocketStringDrive extends HoldRunApplication implements IWebSocketStringListener {
 
     final ChatService chatService;
     final DataService dataService;
@@ -36,7 +37,7 @@ public class WebSocketStringListener extends HoldRunApplication implements IWebS
     HashMap<String, AbstractProcessor> processorMap = new HashMap<>();
 
     @Inject
-    public WebSocketStringListener(ChatService chatService, DataService dataService) {
+    public WebSocketStringDrive(ChatService chatService, DataService dataService) {
         this.chatService = chatService;
         this.dataService = dataService;
     }
@@ -54,37 +55,29 @@ public class WebSocketStringListener extends HoldRunApplication implements IWebS
 
 
     @Override public void onMessage(SocketSession socketSession, String message) {
-        ChatUser bindData = socketSession.bindData("user");
-        log.debug("ws接受到消息: {}, {}, {}", socketSession, bindData, message);
+        log.debug("ws接受到消息: {}, {}", socketSession, message);
+        final ForwardMessage.Gateway2RoomServer gateway2RoomServer = FastJsonUtil.parse(message, ForwardMessage.Gateway2RoomServer.class);
         try {
-
             /*接受发过来的消息*/
-            JSONObject jsonObject = FastJsonUtil.parseJSONObject(message);
-            String cmd = jsonObject.getString("cmd");
+            String cmd = gateway2RoomServer.getCmd();
             if (StringUtils.isBlank(cmd)) {
-                Utils.fail(socketSession, ("命令错误"));
+                dataService.sendMessage2Gateway(socketSession, gateway2RoomServer, RunResult.fail("命令错误"));
                 return;
             }
 
             AbstractProcessor abstractProcessor = processorMap.get(cmd.toLowerCase());
             if (abstractProcessor == null) {
-                Utils.fail(socketSession, ("命令错误"));
+                dataService.sendMessage2Gateway(socketSession, gateway2RoomServer, RunResult.fail("命令错误"));
                 return;
             }
-            if (abstractProcessor.checkLoginEnd()) {
-                if (bindData == null) {
-                    Utils.fail(socketSession, ("尚未登录"));
-                    return;
-                }
-            }
-            abstractProcessor.process(socketSession, bindData, jsonObject);
+            abstractProcessor.process(socketSession, gateway2RoomServer);
         } catch (Exception e) {
             log.error("处理异常: {}, {}", socketSession, message, e);
             if (e instanceof AssertException assertException) {
-                Utils.fail(socketSession, assertException.getMessage());
+                dataService.sendMessage2Gateway(socketSession, gateway2RoomServer, RunResult.fail(assertException.getMessage()));
                 return;
             }
-            Utils.fail(socketSession, "服务器异常");
+            dataService.sendMessage2Gateway(socketSession, gateway2RoomServer, RunResult.fail("服务器异常"));
         }
     }
 

@@ -49,6 +49,7 @@ socket:
     http:
       showRequest: true
       showResponse: true
+      experienceSeconds: -1
 
 db:
   mapdb:

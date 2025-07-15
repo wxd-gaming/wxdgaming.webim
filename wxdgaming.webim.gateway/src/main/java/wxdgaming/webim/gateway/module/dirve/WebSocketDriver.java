@@ -8,10 +8,10 @@ import wxdgaming.boot2.core.HoldRunApplication;
 import wxdgaming.boot2.core.ann.Init;
 import wxdgaming.boot2.core.chatset.StringUtils;
 import wxdgaming.boot2.core.chatset.json.FastJsonUtil;
+import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.core.util.AssertUtil;
 import wxdgaming.boot2.starter.net.SocketSession;
 import wxdgaming.boot2.starter.net.pojo.IWebSocketStringListener;
-import wxdgaming.webim.AbstractProcessor;
 import wxdgaming.webim.ForwardMessage;
 import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.gateway.module.GatewayService;
@@ -19,6 +19,7 @@ import wxdgaming.webim.gateway.module.service.Gateway2RoomServerSocketClientImpl
 import wxdgaming.webim.util.Utils;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * 处理websocket请求 字符串匹配
@@ -54,12 +55,12 @@ public class WebSocketDriver extends HoldRunApplication implements IWebSocketStr
         ChatUser bindData = socketSession.bindData("user");
         log.debug("ws接受到消息: {}, {}, {}", socketSession, bindData, message);
         try {
-            if (socketSession.getType() == SocketSession.Type.client) {
+            if (socketSession.getType() == SocketSession.Type.server) {
                 /*接受发过来的消息*/
                 JSONObject jsonObject = FastJsonUtil.parseJSONObject(message);
                 String cmd = jsonObject.getString("cmd");
                 if (StringUtils.isBlank(cmd)) {
-                    Utils.fail(socketSession, ("命令错误"));
+                    socketSession.write(RunResult.fail("命令错误").toJSONString());
                     return;
                 }
 
@@ -67,7 +68,7 @@ public class WebSocketDriver extends HoldRunApplication implements IWebSocketStr
                 if (abstractProcessor != null) {
                     if (abstractProcessor.checkLoginEnd()) {
                         if (bindData == null) {
-                            Utils.fail(socketSession, ("尚未登录"));
+                            socketSession.write(RunResult.fail("尚未登录").toJSONString());
                             return;
                         }
                     }
@@ -77,12 +78,12 @@ public class WebSocketDriver extends HoldRunApplication implements IWebSocketStr
                     long roomId = jsonObject.getLongValue("roomId");
                     Integer room2ServerId = gatewayService.getRoomId4RoomServerMapping().get(roomId);
                     if (room2ServerId == null) {
-                        Utils.fail(socketSession, ("房间不存在"));
+                        socketSession.write(RunResult.fail("房间不存在").toJSONString());
                         return;
                     }
                     Gateway2RoomServerSocketClientImpl gateway2RoomServerSocketClient = gatewayService.getRoomServerMap().get(room2ServerId);
                     if (gateway2RoomServerSocketClient == null) {
-                        Utils.fail(socketSession, "房间不可用");
+                        socketSession.write(RunResult.fail("房间不可用").toJSONString());
                         return;
                     }
                     SocketSession idle = gateway2RoomServerSocketClient.idle();
@@ -90,19 +91,31 @@ public class WebSocketDriver extends HoldRunApplication implements IWebSocketStr
                         ForwardMessage.Gateway2RoomServer forwardMessage = new ForwardMessage.Gateway2RoomServer();
                         forwardMessage.setClientSessionId(socketSession.getUid());
                         forwardMessage.setAccount(bindData.getName());
+                        forwardMessage.setCmd(cmd);
                         forwardMessage.setMessage(jsonObject);
                         idle.writeAndFlush(forwardMessage.toJSONString());
                     } else {
-                        Utils.fail(socketSession, "服务器繁忙");
+                        socketSession.write(RunResult.fail("服务器繁忙").toJSONString());
                     }
                 }
             } else {
                 ForwardMessage.RoomServer2Gateway forwardMessage = FastJsonUtil.parse(message, ForwardMessage.RoomServer2Gateway.class);
-
+                String jsonString = forwardMessage.getMessage().toJSONString();
+                List<String> accountList = forwardMessage.getAccountList();
+                for (String account : accountList) {
+                    try {
+                        SocketSession targetSession = gatewayService.getAccountSessionMappingMap().get(account);
+                        if (targetSession != null) {
+                            targetSession.write(jsonString);
+                        }
+                    } catch (Exception e) {
+                        log.error("同步消息: {}, {}", account, jsonString, e);
+                    }
+                }
             }
         } catch (Exception e) {
             log.error("ws处理消息异常: {}", e.getMessage());
-            Utils.fail(socketSession, "服务器异常");
+            socketSession.write(RunResult.fail("服务器异常").toJSONString());
         }
     }
 

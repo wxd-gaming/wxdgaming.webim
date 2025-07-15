@@ -3,16 +3,17 @@ package wxdgaming.webim.gateway.module.dirve.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import io.netty.channel.ChannelFutureListener;
 import lombok.extern.slf4j.Slf4j;
 import wxdgaming.boot2.core.ann.Value;
+import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.core.token.JsonToken;
 import wxdgaming.boot2.core.token.JsonTokenParse;
 import wxdgaming.boot2.starter.net.SocketSession;
-import wxdgaming.webim.AbstractProcessor;
+import wxdgaming.webim.gateway.module.dirve.AbstractProcessor;
 import wxdgaming.webim.ForwardMessage;
 import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.gateway.module.GatewayService;
-import wxdgaming.webim.util.Utils;
 
 /**
  * 登陆处理器
@@ -38,6 +39,10 @@ public class LoginProcessor extends AbstractProcessor {
         return "login";
     }
 
+    @Override public boolean checkLoginEnd() {
+        return false;
+    }
+
     public ChatUser parseChatUser(String token) {
         JsonToken jsonToken = JsonTokenParse.parse(jsonTokenKey, token);
         String name = jsonToken.getString("name");
@@ -52,9 +57,45 @@ public class LoginProcessor extends AbstractProcessor {
 
         log.info("用户登录: {} 上线", chatUser.getName());
 
+        SocketSession oldSession = gatewayService.getAccountSessionMappingMap().put(chatUser.getName(), socketSession);
+        if (oldSession != null) {
+            RunResult runResult = RunResult.ok();
+            runResult.fluentPut("cmd", "logout");
+            runResult.fluentPut("msg", "其它地方登录");
+            oldSession
+                    .writeAndFlush(runResult.toJSONString())
+                    .addListener(ChannelFutureListener.CLOSE);
+        }
+
+        socketSession.getChannel().closeFuture().addListener(future -> {
+            gatewayService.getAccountSessionMappingMap().remove(chatUser.getName());
+            log.info("用户登录: {} 下线", chatUser.getName());
+            logout2RoomServer(socketSession, chatUser, jsonObject);
+        });
+
+        login2RoomServer(socketSession, chatUser, jsonObject);
+    }
+
+    void logout2RoomServer(SocketSession socketSession, ChatUser chatUser, JSONObject jsonObject) {
         ForwardMessage.Gateway2RoomServer forwardMessage = new ForwardMessage.Gateway2RoomServer();
         forwardMessage.setAccount(chatUser.getName());
         forwardMessage.setClientSessionId(socketSession.getUid());
+        forwardMessage.setCmd("logout");
+        gatewayService.getRoomServerMap().values().forEach(roomServer -> {
+            SocketSession idle = roomServer.idle();
+            if (idle != null) {
+                idle.write(forwardMessage.toJSONString());
+            } else {
+                log.warn("{} 服务器繁忙", roomServer.getRoomServerId());
+            }
+        });
+    }
+
+    void login2RoomServer(SocketSession socketSession, ChatUser chatUser, JSONObject jsonObject) {
+        ForwardMessage.Gateway2RoomServer forwardMessage = new ForwardMessage.Gateway2RoomServer();
+        forwardMessage.setAccount(chatUser.getName());
+        forwardMessage.setClientSessionId(socketSession.getUid());
+        forwardMessage.setCmd("login");
         forwardMessage.setMessage(jsonObject);
         gatewayService.getRoomServerMap().values().forEach(roomServer -> {
             SocketSession idle = roomServer.idle();
@@ -64,7 +105,6 @@ public class LoginProcessor extends AbstractProcessor {
                 log.warn("{} 服务器繁忙", roomServer.getRoomServerId());
             }
         });
-
     }
 
 }

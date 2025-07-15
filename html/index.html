@@ -80,7 +80,8 @@
         .divBg li input {width: calc(100% - 80px);height: 28px; line-height: 28px;}
 
         .divBg .divBox {
-            display: block;position: relative;left: 50%;top: 50%;transform: translate(-50%, -50%);
+            display: block;position: absolute;left: 50%;top: 50%;transform: translate(-50%, -50%);
+            z-index: 105;
             width: 400px;height: 210px;padding-top: 15px;
             background: white;border-radius: 5px;
         }
@@ -116,6 +117,11 @@
 
         $(() => {
 
+            $('.divBox').on('click', function (event) {
+                console.log("divBox click");
+                event.stopPropagation(); // 阻止事件向父级元素传播
+            });
+
             if (wxd.isMobileDevice()) {
                 console.log("当前设备是手机");
             } else {
@@ -131,7 +137,9 @@
             };
 
             wsClient.onClose = () => {
-                console.log("onClose");
+                wxd.message.alert("断开连接，刷新页面", "提示", "确定", function () {
+                    window.top.location.reload();
+                });
             };
 
             wsClient.onRead = (msg) => {
@@ -156,6 +164,10 @@
                         loginEnd = true;
                         checkRoom(1);
                     }
+                } else if (cmd === "logout") {
+                    wxd.message.alert(json.msg, "提示", "确定", function () {
+                        window.top.location.reload();
+                    });
                 } else if (cmd === "exitRoom") {
                     /*退出房间*/
                     let roomId = json.roomId;
@@ -236,7 +248,6 @@
             $(".loginBg").hide();
             loginAccount = data.name;
             token = data.token;
-            let port = data.port;
             localStorage.setItem("token", token);
             $("#li_account").html(loginAccount);
 
@@ -245,10 +256,8 @@
             } else {
                 ws_url = "ws";
             }
-            let host = window.location.host;
-            if (host.indexOf(":") > 0) {
-                host = host.substring(0, host.indexOf(":"));
-            }
+            let host = data.ip;
+            let port = data.port;
 
             ws_url = ws_url + "://" + host + ":" + port + "/wxd-chat";
             console.log("ws_url=" + ws_url);

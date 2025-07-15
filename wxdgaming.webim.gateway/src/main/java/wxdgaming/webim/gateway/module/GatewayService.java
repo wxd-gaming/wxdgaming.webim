@@ -26,6 +26,7 @@ import wxdgaming.boot2.starter.net.pojo.ProtoListenerFactory;
 import wxdgaming.boot2.starter.net.server.SocketServerConfig;
 import wxdgaming.boot2.starter.net.server.http.HttpListenerFactory;
 import wxdgaming.boot2.starter.scheduled.ann.Scheduled;
+import wxdgaming.webim.ForwardMessage;
 import wxdgaming.webim.bean.ServerMapping;
 import wxdgaming.webim.gateway.module.data.DataCenterService;
 import wxdgaming.webim.gateway.module.service.Gateway2RoomServerSocketClientImpl;
@@ -59,6 +60,12 @@ public class GatewayService extends HoldRunApplication {
      * <p>value: 房间服务器id
      */
     final ConcurrentHashMap<Long, Integer> roomId4RoomServerMapping = new ConcurrentHashMap<>();
+    /**
+     * 账号session映射
+     * <p>key: 账号
+     * <p>value: session
+     */
+    final ConcurrentHashMap<String, SocketSession> accountSessionMappingMap = new ConcurrentHashMap<>();
 
     final ProtoListenerFactory protoListenerFactory;
     final HttpListenerFactory httpListenerFactory;
@@ -118,12 +125,16 @@ public class GatewayService extends HoldRunApplication {
 
         log.info("添加房间服务器映射结果:{}", roomServerList);
 
+        ForwardMessage.Gateway2RoomServer gateway2RoomServer = new ForwardMessage.Gateway2RoomServer();
+        gateway2RoomServer.setCmd("RegisterGateway");
+        gateway2RoomServer.setMessage(gatewayServerMapping.toJSONObject());
+
         for (ServerMapping mapping : roomServerList) {
             ServerMapping roomServerMapping = dataCenterService.getRoomMappings().computeIfAbsent(mapping.getSid(), k -> mapping);
             roomServerMapping.setRoomIds(mapping.getRoomIds());
             roomServerMapping.setIp(mapping.getIp());
             roomServerMapping.setPort(mapping.getPort());
-            checkGatewaySession(gatewayServerMapping, roomServerMapping);
+            checkGatewaySession(gateway2RoomServer.toJSONString(), roomServerMapping);
             for (Long roomId : roomServerMapping.getRoomIds()) {
                 roomId4RoomServerMapping.put(roomId, roomServerMapping.getSid());
             }
@@ -132,7 +143,7 @@ public class GatewayService extends HoldRunApplication {
     }
 
     /** 网关主动连游戏服 */
-    public void checkGatewaySession(ServerMapping gatewayServerMapping, ServerMapping roomServerMapping) {
+    public void checkGatewaySession(String gatewayServerMapping, ServerMapping roomServerMapping) {
 
         Gateway2RoomServerSocketClientImpl gatewaySocketClient = roomServerMap.computeIfAbsent(sid, l -> {
             SocketClientConfig socketClientConfig = (SocketClientConfig) socketForwardConfig.clone();
@@ -151,7 +162,8 @@ public class GatewayService extends HoldRunApplication {
         if (socketSession != null) {
             if (socketSession.isOpen()) {
                 log.info("{}", roomServerMapping);
-                socketSession.write(roomServerMapping);
+
+                socketSession.writeAndFlush(gatewayServerMapping);
             }
         }
 

@@ -10,6 +10,7 @@ import wxdgaming.boot2.core.io.Objects;
 import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.core.util.AssertUtil;
 import wxdgaming.boot2.core.util.Md5Util;
+import wxdgaming.boot2.core.util.RandomUtils;
 import wxdgaming.boot2.core.util.SingletonLockUtil;
 import wxdgaming.boot2.starter.net.ann.HttpRequest;
 import wxdgaming.boot2.starter.net.ann.RequestMapping;
@@ -18,6 +19,8 @@ import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.bean.ServerMapping;
 import wxdgaming.webim.login.module.inner.InnerService;
 import wxdgaming.webim.login.module.user.ChatUserService;
+
+import java.util.Collection;
 
 /**
  * 注册接口
@@ -104,12 +107,20 @@ public class ChatUserController {
             chatUserService.saveChatUser(chatUser);
         }
 
-        ServerMapping serverMapping = innerService.getRoom4ServerMappingMap().get(1);
+        Collection<ServerMapping> values = innerService.getGatewayServerMappingMap().values();
+        ServerMapping serverMapping = RandomUtils.randomItem(values);
+        String ip = "";
+        int port = 0;
+        if (serverMapping != null) {
+            ip = serverMapping.getIp();
+            port = serverMapping.getPort();
+        }
 
         return RunResult.ok()
                 .fluentPut("name", chatUser.getName())
                 .fluentPut("openId", chatUser.getOpenId())
-                .fluentPut("port", serverMapping.getPort())
+                .fluentPut("ip", ip)
+                .fluentPut("port", port)
                 .fluentPut("token", token);
 
     }

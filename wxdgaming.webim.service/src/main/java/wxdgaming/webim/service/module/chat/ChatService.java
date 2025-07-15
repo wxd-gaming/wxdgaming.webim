@@ -5,16 +5,11 @@ import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import wxdgaming.boot2.core.HoldRunApplication;
 import wxdgaming.boot2.core.lang.RunResult;
-import wxdgaming.boot2.core.timer.MyClock;
-import wxdgaming.boot2.starter.net.SocketSession;
 import wxdgaming.boot2.starter.scheduled.ann.Scheduled;
+import wxdgaming.webim.ForwardMessage;
 import wxdgaming.webim.bean.ChatRoom;
-import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.service.module.data.DataService;
 import wxdgaming.webim.util.Utils;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * 聊天服务
@@ -37,17 +32,11 @@ public class ChatService extends HoldRunApplication {
     public void scheduled() {
         dataService.getRoomMap().values().stream()
                 .filter(ChatRoom::isSystem)
-                .filter(chatRoom -> chatRoom.getSessionGroup().size() > 0)
-                .forEach(chatRoom -> Utils.systemTip(chatRoom, "请文明聊天，合法合规；请勿发布违法信息，否则将被封号！"));
-    }
-
-
-    public void sendRoomList(SocketSession socketSession, ChatUser chatUser) {
-        List<Map<String, Object>> roomList = dataService.roomListBean(chatUser);
-        RunResult ok = RunResult.ok();
-        ok.fluentPut("cmd", "roomList");
-        ok.fluentPut("roomList", roomList);
-        socketSession.write(ok.toJSONString());
+                .filter(chatRoom -> !chatRoom.getUserMap().isEmpty())
+                .forEach(chatRoom -> {
+                    RunResult runResult = Utils.buildSystemTip(chatRoom, "请文明聊天，合法合规；请勿发布违法信息，否则将被封号！");
+                    dataService.sendAllGateway(chatRoom, runResult);
+                });
     }
 
 }

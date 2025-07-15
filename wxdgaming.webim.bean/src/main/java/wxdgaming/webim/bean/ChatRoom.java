@@ -5,7 +5,9 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import wxdgaming.boot2.core.collection.MapOf;
 import wxdgaming.boot2.core.lang.ObjectBase;
+import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.starter.net.SessionGroup;
+import wxdgaming.webim.ForwardMessage;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -39,8 +41,6 @@ public class ChatRoom extends ObjectBase implements Serializable {
 
     private final List<String> historyList = new ArrayList<>();
     private final Set<String> userMap = new ConcurrentSkipListSet<>();
-
-    private transient SessionGroup sessionGroup = new SessionGroup();
 
     public void addUser(String user) {
         userMap.add(user);
@@ -80,9 +80,11 @@ public class ChatRoom extends ObjectBase implements Serializable {
         }
     }
 
-    public SessionGroup getSessionGroup() {
-        if (sessionGroup == null)
-            sessionGroup = new SessionGroup();
-        return sessionGroup;
+    public ForwardMessage.RoomServer2Gateway buildRoomServer2Gateway(RunResult runResult) {
+        ForwardMessage.RoomServer2Gateway roomServer2Gateway = new ForwardMessage.RoomServer2Gateway();
+        roomServer2Gateway.setAccountList(List.copyOf(userMap));
+        roomServer2Gateway.setMessage(runResult);
+        return roomServer2Gateway;
     }
+
 }

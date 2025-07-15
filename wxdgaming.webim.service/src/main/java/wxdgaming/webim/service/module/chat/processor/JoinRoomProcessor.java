@@ -1,16 +1,13 @@
 package wxdgaming.webim.service.module.chat.processor;
 
-import com.alibaba.fastjson.JSONObject;
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import wxdgaming.boot2.core.chatset.StringUtils;
+import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.starter.net.SocketSession;
-import wxdgaming.webim.AbstractProcessor;
+import wxdgaming.webim.ForwardMessage;
 import wxdgaming.webim.bean.ChatRoom;
-import wxdgaming.webim.bean.ChatUser;
-import wxdgaming.webim.service.module.chat.ChatService;
-import wxdgaming.webim.service.module.data.DataService;
+import wxdgaming.webim.service.module.chat.AbstractProcessor;
 import wxdgaming.webim.util.Utils;
 
 import java.util.Objects;
@@ -25,39 +22,29 @@ import java.util.Objects;
 @Singleton
 public class JoinRoomProcessor extends AbstractProcessor {
 
-    final DataService dataService;
-    final ChatService chatService;
-
-    @Inject
-    public JoinRoomProcessor(DataService dataService, ChatService chatService) {
-        this.dataService = dataService;
-        this.chatService = chatService;
-    }
-
     @Override public String type() {
         return "joinRoom";
     }
 
-    @Override public void process(SocketSession socketSession, ChatUser self, JSONObject jsonObject) {
-        long joinRoomId = jsonObject.getLongValue("joinRoomId");
+    @Override public void process(SocketSession socketSession, ForwardMessage.Gateway2RoomServer gateway2RoomServer) {
+        long joinRoomId = gateway2RoomServer.getMessage().getLongValue("joinRoomId");
         ChatRoom chatRoom = dataService.getRoomMap().get(joinRoomId);
         if (chatRoom == null) {
-            Utils.fail(socketSession, "房间不存在");
+            dataService.sendMessage2Gateway(socketSession, gateway2RoomServer, RunResult.fail("房间不存在"));
             return;
         }
         if (StringUtils.isNotBlank(chatRoom.getToken())) {
-            String joinToken = jsonObject.getString("joinToken");
+            String joinToken = gateway2RoomServer.getMessage().getString("joinToken");
             if (!Objects.equals(chatRoom.getToken(), joinToken)) {
-                Utils.fail(socketSession, "密钥错误");
+                dataService.sendMessage2Gateway(socketSession, gateway2RoomServer, RunResult.fail("密钥错误"));
                 return;
             }
         }
 
-        chatRoom.addUser(self.getName());
-        chatRoom.getSessionGroup().add(socketSession);
-        Utils.systemTip(chatRoom, "%s 进入聊天室".formatted(self.getName()));
-
-        chatService.sendRoomList(socketSession, self);
+        chatRoom.addUser(gateway2RoomServer.getAccount());
+        RunResult runResult = Utils.buildSystemTip(chatRoom, "%s 进入聊天室".formatted(gateway2RoomServer.getAccount()));
+        dataService.sendAllGateway(chatRoom, runResult);
+        dataService.sendRoomList(socketSession, gateway2RoomServer);
     }
 
 }
