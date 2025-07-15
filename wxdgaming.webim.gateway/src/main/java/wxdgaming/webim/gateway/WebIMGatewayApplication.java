@@ -16,6 +16,7 @@ public class WebIMGatewayApplication {
                 WebIMGatewayApplication.class
         );
         runApplication.start();
+        runApplication.registerShutdownHook();
     }
 
 }

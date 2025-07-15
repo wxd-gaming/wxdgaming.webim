@@ -30,7 +30,7 @@ public class NewRoomProcessor extends AbstractProcessor {
         AssertUtil.assertTrue(!StringUtils.isBlank(title) && StringUtils.length(title) >= 3 && StringUtils.length(title) <= 12, "名字长度 3 ~ 8");
 
         ChatRoom chatRoom = new ChatRoom();
-        chatRoom.setRoomId(dataService.getAtomicLong().incrementAndGet());
+        chatRoom.setRoomId(dataService.newRoomId());
         chatRoom.setTitle(title);
         chatRoom.setToken(gateway2RoomServer.getMessage().getString("token"));
         chatRoom.setMaster(gateway2RoomServer.getAccount());

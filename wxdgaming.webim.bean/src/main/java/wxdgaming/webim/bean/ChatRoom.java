@@ -27,7 +27,7 @@ public class ChatRoom extends ObjectBase implements Serializable {
 
     @Serial private static final long serialVersionUID = 1L;
 
-    private long roomId;
+    private String roomId;
     private boolean system = false;
     /** 归属的角色 */
     private String master;

@@ -18,6 +18,7 @@ public class WebIMServiceApplication {
                 WebIMServiceApplication.class
         );
         runApplication.start();
+        runApplication.registerShutdownHook();
     }
 
 }

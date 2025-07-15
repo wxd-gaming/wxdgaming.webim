@@ -7,7 +7,6 @@ import wxdgaming.boot2.starter.net.SocketSession;
 import wxdgaming.webim.ForwardMessage;
 import wxdgaming.webim.bean.ChatRoom;
 import wxdgaming.webim.service.module.chat.AbstractProcessor;
-import wxdgaming.webim.util.Utils;
 
 import java.util.ArrayList;
 
@@ -27,7 +26,7 @@ public class RoomUserListProcessor extends AbstractProcessor {
     }
 
     @Override public void process(SocketSession socketSession, ForwardMessage.Gateway2RoomServer gateway2RoomServer) {
-        long roomId = gateway2RoomServer.getMessage().getLongValue("roomId");
+        String roomId = gateway2RoomServer.getMessage().getString("roomId");
         ChatRoom chatRoom = dataService.getRoomMap().get(roomId);
         if (chatRoom == null) {
             dataService.sendMessage2Gateway(socketSession, gateway2RoomServer, RunResult.fail("房间不存在"));

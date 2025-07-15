@@ -81,7 +81,7 @@ public class LoginProcessor extends AbstractProcessor {
         forwardMessage.setAccount(chatUser.getName());
         forwardMessage.setClientSessionId(socketSession.getUid());
         forwardMessage.setCmd("logout");
-        gatewayService.getRoomServerMap().values().forEach(roomServer -> {
+        gatewayService.getRoomServerProxyMap().values().forEach(roomServer -> {
             SocketSession idle = roomServer.idle();
             if (idle != null) {
                 idle.write(forwardMessage.toJSONString());
@@ -97,7 +97,7 @@ public class LoginProcessor extends AbstractProcessor {
         forwardMessage.setClientSessionId(socketSession.getUid());
         forwardMessage.setCmd("login");
         forwardMessage.setMessage(jsonObject);
-        gatewayService.getRoomServerMap().values().forEach(roomServer -> {
+        gatewayService.getRoomServerProxyMap().values().forEach(roomServer -> {
             SocketSession idle = roomServer.idle();
             if (idle != null) {
                 idle.write(forwardMessage.toJSONString());

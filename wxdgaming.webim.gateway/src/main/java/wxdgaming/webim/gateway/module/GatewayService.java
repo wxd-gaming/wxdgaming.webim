@@ -29,11 +29,12 @@ import wxdgaming.boot2.starter.scheduled.ann.Scheduled;
 import wxdgaming.webim.ForwardMessage;
 import wxdgaming.webim.bean.ServerMapping;
 import wxdgaming.webim.gateway.module.data.DataCenterService;
-import wxdgaming.webim.gateway.module.service.Gateway2RoomServerSocketClientImpl;
+import wxdgaming.webim.gateway.module.service.Gateway2RoomServerSocketProxy;
 
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 服务
@@ -53,13 +54,24 @@ public class GatewayService extends HoldRunApplication {
     @Value(path = "innerAuthorizationKey")
     private String innerAuthorizationKey;
     final DataCenterService dataCenterService;
-    final ConcurrentHashMap<Integer, Gateway2RoomServerSocketClientImpl> roomServerMap = new ConcurrentHashMap<>();
+    /**
+     * 房间服务器映射
+     * <p>key: 房间服务的进程id
+     * <p>value: 房间服务代理
+     */
+    final ConcurrentHashMap<Integer, Gateway2RoomServerSocketProxy> roomServerProxyMap = new ConcurrentHashMap<>();
     /**
      * 房间服务器映射
      * <p>key: 房间id
      * <p>value: 房间服务器id
      */
-    final ConcurrentHashMap<Long, Integer> roomId4RoomServerMapping = new ConcurrentHashMap<>();
+    final ConcurrentHashMap<String, Integer> roomId4RoomServerMapping = new ConcurrentHashMap<>();
+    /**
+     * 房间服务的房间 数量
+     * <p>key: 房间服务器id
+     * <p>value: 房间数量
+     */
+    final ConcurrentHashMap<Integer, AtomicInteger> roomServerRoomCountMap = new ConcurrentHashMap<>();
     /**
      * 账号session映射
      * <p>key: 账号
@@ -135,8 +147,10 @@ public class GatewayService extends HoldRunApplication {
             roomServerMapping.setIp(mapping.getIp());
             roomServerMapping.setPort(mapping.getPort());
             checkGatewaySession(gateway2RoomServer.toJSONString(), roomServerMapping);
-            for (Long roomId : roomServerMapping.getRoomIds()) {
+            AtomicInteger atomicInteger = roomServerRoomCountMap.computeIfAbsent(roomServerMapping.getSid(), k -> new AtomicInteger(0));
+            for (String roomId : roomServerMapping.getRoomIds()) {
                 roomId4RoomServerMapping.put(roomId, roomServerMapping.getSid());
+                atomicInteger.incrementAndGet();
             }
         }
 
@@ -145,13 +159,13 @@ public class GatewayService extends HoldRunApplication {
     /** 网关主动连游戏服 */
     public void checkGatewaySession(String gatewayServerMapping, ServerMapping roomServerMapping) {
 
-        Gateway2RoomServerSocketClientImpl gatewaySocketClient = roomServerMap.computeIfAbsent(sid, l -> {
+        Gateway2RoomServerSocketProxy gatewaySocketClient = roomServerProxyMap.computeIfAbsent(sid, l -> {
             SocketClientConfig socketClientConfig = (SocketClientConfig) socketForwardConfig.clone();
             socketClientConfig.setHost(roomServerMapping.getIp());
             socketClientConfig.setPort(roomServerMapping.getPort());
             socketClientConfig.setMaxConnectionCount(1);
             socketClientConfig.setEnabledReconnection(false);
-            Gateway2RoomServerSocketClientImpl socketClient = new Gateway2RoomServerSocketClientImpl(socketClientConfig, roomServerMapping.getSid());
+            Gateway2RoomServerSocketProxy socketClient = new Gateway2RoomServerSocketProxy(socketClientConfig, roomServerMapping.getSid());
             socketClient.init(protoListenerFactory, httpListenerFactory);
             return socketClient;
         });

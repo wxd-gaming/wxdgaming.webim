@@ -18,6 +18,7 @@ public class WebIMLoginApplication {
                 WebIMLoginApplication.class
         );
         runApplication.start();
+        runApplication.registerShutdownHook();
     }
 
 }

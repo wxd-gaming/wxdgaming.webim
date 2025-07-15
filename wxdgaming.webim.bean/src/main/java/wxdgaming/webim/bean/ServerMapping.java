@@ -25,6 +25,6 @@ public class ServerMapping extends ObjectBase implements Serializable {
     private int sid;
     private String ip;
     private int port;
-    private Set<Long> roomIds;
+    private Set<String> roomIds;
 
 }

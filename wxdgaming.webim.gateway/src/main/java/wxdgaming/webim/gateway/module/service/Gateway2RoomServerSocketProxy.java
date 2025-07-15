@@ -4,7 +4,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import lombok.Getter;
-import lombok.Setter;
 import wxdgaming.boot2.starter.net.ChannelUtil;
 import wxdgaming.boot2.starter.net.SocketSession;
 import wxdgaming.boot2.starter.net.client.SocketClient;
@@ -21,11 +20,11 @@ import java.util.function.Consumer;
  * @version: 2025-07-14 13:26
  */
 @Getter
-public class Gateway2RoomServerSocketClientImpl extends SocketClient {
+public class Gateway2RoomServerSocketProxy extends SocketClient {
 
     private final int roomServerId;
 
-    public Gateway2RoomServerSocketClientImpl(SocketClientConfig config, int roomServerId) {
+    public Gateway2RoomServerSocketProxy(SocketClientConfig config, int roomServerId) {
         super(config);
         this.roomServerId = roomServerId;
     }

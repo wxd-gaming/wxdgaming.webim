@@ -27,7 +27,7 @@ public class JoinRoomProcessor extends AbstractProcessor {
     }
 
     @Override public void process(SocketSession socketSession, ForwardMessage.Gateway2RoomServer gateway2RoomServer) {
-        long joinRoomId = gateway2RoomServer.getMessage().getLongValue("joinRoomId");
+        String joinRoomId = gateway2RoomServer.getMessage().getString("joinRoomId");
         ChatRoom chatRoom = dataService.getRoomMap().get(joinRoomId);
         if (chatRoom == null) {
             dataService.sendMessage2Gateway(socketSession, gateway2RoomServer, RunResult.fail("房间不存在"));

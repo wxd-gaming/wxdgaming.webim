@@ -1,18 +1,12 @@
 package wxdgaming.webim.service.module.chat.processor;
 
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import wxdgaming.boot2.core.ann.Value;
 import wxdgaming.boot2.core.lang.RunResult;
-import wxdgaming.boot2.core.token.JsonToken;
-import wxdgaming.boot2.core.token.JsonTokenParse;
 import wxdgaming.boot2.starter.net.SocketSession;
 import wxdgaming.webim.ForwardMessage;
-import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.service.module.chat.AbstractProcessor;
-import wxdgaming.webim.service.module.chat.ChatService;
-import wxdgaming.webim.service.module.data.DataService;
 import wxdgaming.webim.util.Utils;
 
 /**
@@ -25,9 +19,6 @@ import wxdgaming.webim.util.Utils;
 @Singleton
 public class LoginProcessor extends AbstractProcessor {
 
-    @Value(path = "json.token.key", nestedPath = true)
-    String jsonTokenKey;
-
     @Override public String type() {
         return "login";
     }
@@ -37,7 +28,6 @@ public class LoginProcessor extends AbstractProcessor {
 
         log.info("用户登录: {} 上线 进入公共聊天室", gateway2RoomServer.getAccount());
 
-        dataService.sendRoomList(socketSession, gateway2RoomServer);
 
         dataService.getRoomMap().values().stream()
                 .filter(room -> room.hasUser(gateway2RoomServer.getAccount()))
@@ -48,6 +38,8 @@ public class LoginProcessor extends AbstractProcessor {
                         room.getUserMap().add(gateway2RoomServer.getAccount());
                     }
                 });
+
+        dataService.sendRoomList(socketSession, gateway2RoomServer);
 
         //        socketSession.getChannel().closeFuture().addListener(future -> {
         //

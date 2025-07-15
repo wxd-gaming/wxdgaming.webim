@@ -1,16 +1,12 @@
 package wxdgaming.webim.service.module.chat.processor;
 
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.starter.net.SocketSession;
 import wxdgaming.webim.ForwardMessage;
 import wxdgaming.webim.bean.ChatRoom;
-import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.service.module.chat.AbstractProcessor;
-import wxdgaming.webim.service.module.chat.ChatService;
-import wxdgaming.webim.service.module.data.DataService;
 import wxdgaming.webim.util.Utils;
 
 /**
@@ -28,7 +24,7 @@ public class ExitRoomProcessor extends AbstractProcessor {
     }
 
     @Override public void process(SocketSession socketSession, ForwardMessage.Gateway2RoomServer gateway2RoomServer) {
-        long roomId = gateway2RoomServer.getMessage().getLongValue("roomId");
+        String roomId = gateway2RoomServer.getMessage().getString("roomId");
         ChatRoom chatRoom = dataService.getRoomMap().get(roomId);
         if (chatRoom == null) {
             dataService.sendMessage2Gateway(socketSession, gateway2RoomServer, RunResult.fail("房间不存在"));
@@ -36,7 +32,7 @@ public class ExitRoomProcessor extends AbstractProcessor {
         }
         if (chatRoom.getMaster().equals(gateway2RoomServer.getAccount())) {
             dataService.getRoomMap().remove(roomId);
-            dataService.getRoomMapCache().remove(String.valueOf(roomId));
+            dataService.getRoomMapCache().remove(roomId);
         } else {
             chatRoom.removeUser(gateway2RoomServer.getAccount());
             RunResult runResult = Utils.buildSystemTip(chatRoom, "%s 退出聊天室".formatted(gateway2RoomServer.getAccount()));

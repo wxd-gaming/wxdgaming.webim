@@ -15,8 +15,7 @@ import wxdgaming.boot2.starter.net.pojo.IWebSocketStringListener;
 import wxdgaming.webim.ForwardMessage;
 import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.gateway.module.GatewayService;
-import wxdgaming.webim.gateway.module.service.Gateway2RoomServerSocketClientImpl;
-import wxdgaming.webim.util.Utils;
+import wxdgaming.webim.gateway.module.service.Gateway2RoomServerSocketProxy;
 
 import java.util.HashMap;
 import java.util.List;
@@ -75,13 +74,13 @@ public class WebSocketDriver extends HoldRunApplication implements IWebSocketStr
                     abstractProcessor.process(socketSession, bindData, jsonObject);
                 } else {
                     /*说明需要转发*/
-                    long roomId = jsonObject.getLongValue("roomId");
+                    String roomId = jsonObject.getString("roomId");
                     Integer room2ServerId = gatewayService.getRoomId4RoomServerMapping().get(roomId);
                     if (room2ServerId == null) {
                         socketSession.write(RunResult.fail("房间不存在").toJSONString());
                         return;
                     }
-                    Gateway2RoomServerSocketClientImpl gateway2RoomServerSocketClient = gatewayService.getRoomServerMap().get(room2ServerId);
+                    Gateway2RoomServerSocketProxy gateway2RoomServerSocketClient = gatewayService.getRoomServerProxyMap().get(room2ServerId);
                     if (gateway2RoomServerSocketClient == null) {
                         socketSession.write(RunResult.fail("房间不可用").toJSONString());
                         return;
@@ -114,7 +113,7 @@ public class WebSocketDriver extends HoldRunApplication implements IWebSocketStr
                 }
             }
         } catch (Exception e) {
-            log.error("ws处理消息异常: {}", e.getMessage());
+            log.error("ws处理消息异常: {} {}", socketSession, message, e);
             socketSession.write(RunResult.fail("服务器异常").toJSONString());
         }
     }

@@ -151,6 +151,7 @@
                     /*正常聊天*/
                     let roomId = json.roomId;
                     let self = roomMap.get(roomId);
+                    if (wxd.isNull(self) || "put" === self) return;
                     self.onReceiveMessage(json, false);
                 } else if (cmd === "roomList") {
                     /*下发的房间列表*/
@@ -160,7 +161,7 @@
                     }
                     if (!loginEnd) {
                         loginEnd = true;
-                        checkRoom(1);
+                        checkRoom("1");
                     }
                 } else if (cmd === "logout") {
                     wxd.message.alert(json.msg, "提示", "确定", function () {
@@ -174,7 +175,7 @@
                     $("#room_" + roomId).remove();
                     $("#content_" + roomId).remove();
 
-                    checkRoom(1);
+                    checkRoom("1");
 
                 } else if (cmd === "pullHistoryMessage") {
                     /*拉取房间的历史记录*/
@@ -284,7 +285,7 @@
             }
             roomMap.put(roomId, "put");
             let appendUi = `
-<li id="room_${room.roomId}" onclick="checkRoom(${room.roomId})" title="${room.title}(${room.roomId}), 管理: ${room.master}">${room.title}(管理: ${room.master})<br>ID: ${room.roomId}</li>
+<li id="room_${room.roomId}" onclick="checkRoom('${room.roomId}')" title="${room.title}(${room.roomId}), 管理: ${room.master}">${room.title}(管理: ${room.master})<br>ID: ${room.roomId}</li>
 `;
             $(".title").append(appendUi);
 
