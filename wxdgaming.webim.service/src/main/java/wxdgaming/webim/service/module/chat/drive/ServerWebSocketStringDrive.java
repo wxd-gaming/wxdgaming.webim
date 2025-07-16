@@ -1,6 +1,5 @@
 package wxdgaming.webim.service.module.chat.drive;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
@@ -12,12 +11,11 @@ import wxdgaming.boot2.core.lang.AssertException;
 import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.core.util.AssertUtil;
 import wxdgaming.boot2.starter.net.SocketSession;
-import wxdgaming.boot2.starter.net.pojo.IWebSocketStringListener;
+import wxdgaming.boot2.starter.net.server.IServerWebSocketStringListener;
 import wxdgaming.webim.ForwardMessage;
 import wxdgaming.webim.service.module.chat.AbstractProcessor;
 import wxdgaming.webim.service.module.chat.ChatService;
 import wxdgaming.webim.service.module.data.DataService;
-import wxdgaming.webim.util.Utils;
 
 import java.util.HashMap;
 
@@ -29,7 +27,7 @@ import java.util.HashMap;
  **/
 @Slf4j
 @Singleton
-public class WebSocketStringDrive extends HoldRunApplication implements IWebSocketStringListener {
+public class ServerWebSocketStringDrive extends HoldRunApplication implements IServerWebSocketStringListener {
 
     final ChatService chatService;
     final DataService dataService;
@@ -37,7 +35,7 @@ public class WebSocketStringDrive extends HoldRunApplication implements IWebSock
     HashMap<String, AbstractProcessor> processorMap = new HashMap<>();
 
     @Inject
-    public WebSocketStringDrive(ChatService chatService, DataService dataService) {
+    public ServerWebSocketStringDrive(ChatService chatService, DataService dataService) {
         this.chatService = chatService;
         this.dataService = dataService;
     }

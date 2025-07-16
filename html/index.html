@@ -136,6 +136,10 @@
 
             wsClient.onSource = () => {
                 console.log("onOpen");
+                /*连接成功发登录请求*/
+                let loginMessage = new wxd.Map().put("cmd", "login").put("token", token).toJson();
+                wsClient.sendMsg(loginMessage);
+                wxd.loading_close();
             };
 
             wsClient.onClose = () => {
@@ -275,9 +279,7 @@
 
             ws_url = ws_url + "://" + host + ":" + port + "/wxd-chat";
             wsConnect();
-
             wxd.loading();
-            sendLoginMessage();
         }
 
         function wsConnect() {
@@ -285,17 +287,6 @@
             wsClient.connect(ws_url);
         }
 
-        function sendLoginMessage() {
-            setTimeout(() => {
-                if (wsClient.socketOpen) {
-                    let loginMessage = new wxd.Map().put("cmd", "login").put("token", token).toJson();
-                    wsClient.sendMsg(loginMessage);
-                    wxd.loading_close();
-                } else {
-                    sendLoginMessage();
-                }
-            }, 1000)
-        }
 
         function addRoomUi(room) {
             let roomId = room.roomId + "";

@@ -34,6 +34,7 @@ import wxdgaming.webim.gateway.module.service.Gateway2RoomServerSocketProxy;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -83,6 +84,8 @@ public class GatewayService extends HoldRunApplication {
     final HttpListenerFactory httpListenerFactory;
     final SocketClientConfig socketForwardConfig;
 
+    private final AtomicBoolean initEnd = new AtomicBoolean();
+
     @Inject
     public GatewayService(DataCenterService dataCenterService,
                           ProtoListenerFactory protoListenerFactory,
@@ -105,7 +108,7 @@ public class GatewayService extends HoldRunApplication {
     }
 
     /** 定时器同步信息到登录服务器 */
-    @Scheduled(value = "*/10 * * *", async = true)
+    @Scheduled(value = "*/5 * * *", async = true)
     @ExecutorWith(useVirtualThread = true)
     public void syncRoomServer2LoginServer() {
 
@@ -135,7 +138,7 @@ public class GatewayService extends HoldRunApplication {
 
         ArrayList<ServerMapping> roomServerList = runResult.getObject("roomServerList", new TypeReference<ArrayList<ServerMapping>>() {});
 
-        log.info("添加房间服务器映射结果:{}", roomServerList);
+        log.debug("添加房间服务器映射结果:{}", roomServerList);
 
         ForwardMessage.Gateway2RoomServer gateway2RoomServer = new ForwardMessage.Gateway2RoomServer();
         gateway2RoomServer.setCmd("RegisterGateway");
@@ -154,7 +157,13 @@ public class GatewayService extends HoldRunApplication {
             }
             roomServerRoomCountMap.put(roomServerMapping.getSid(), atomicInteger);
         }
-
+        if (!initEnd.get()) {
+            long count = roomServerProxyMap.values().stream().filter(proxy -> proxy.idle() != null).count();
+            if (roomServerProxyMap.size() >= count) {
+                initEnd.set(true);
+                log.info("房间连接成功，游戏服数量：{}", roomServerProxyMap.size());
+            }
+        }
     }
 
     /** 网关主动连游戏服 */
@@ -176,8 +185,7 @@ public class GatewayService extends HoldRunApplication {
         SocketSession socketSession = gatewaySocketClient.idle();
         if (socketSession != null) {
             if (socketSession.isOpen()) {
-                log.info("{}", roomServerMapping);
-
+                log.debug("{}", roomServerMapping);
                 socketSession.writeAndFlush(gatewayServerMapping);
             }
         }

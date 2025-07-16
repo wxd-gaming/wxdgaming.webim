@@ -1,4 +1,4 @@
-package wxdgaming.webim.gateway.module.dirve.impl;
+package wxdgaming.webim.gateway.module.dirve.impl.app;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.inject.Singleton;
@@ -7,7 +7,7 @@ import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.starter.net.SocketSession;
 import wxdgaming.webim.ForwardMessage;
 import wxdgaming.webim.bean.ChatUser;
-import wxdgaming.webim.gateway.module.dirve.AbstractProcessor;
+import wxdgaming.webim.gateway.module.dirve.AbstractApp2GatewayMessageProcessor;
 import wxdgaming.webim.gateway.module.service.Gateway2RoomServerSocketProxy;
 
 import java.util.Comparator;
@@ -20,7 +20,7 @@ import java.util.Comparator;
  **/
 @Slf4j
 @Singleton
-public class NewRoomProcessor extends AbstractProcessor {
+public class NewRoomProcessor extends AbstractApp2GatewayMessageProcessor {
 
     @Override public String type() {
         return "NewRoom";

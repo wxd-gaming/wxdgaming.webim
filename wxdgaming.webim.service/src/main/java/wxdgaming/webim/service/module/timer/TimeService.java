@@ -58,7 +58,7 @@ public class TimeService extends HoldRunApplication {
     }
 
     /** 定时器同步信息到登录服务器 */
-    @Scheduled(value = "*/10 * * *", async = true)
+    @Scheduled(value = "*/5 * * *", async = true)
     @ExecutorWith(useVirtualThread = true)
     public void syncRoomServer2LoginServer() {
 

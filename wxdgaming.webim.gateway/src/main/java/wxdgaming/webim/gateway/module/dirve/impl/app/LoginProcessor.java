@@ -1,4 +1,4 @@
-package wxdgaming.webim.gateway.module.dirve.impl;
+package wxdgaming.webim.gateway.module.dirve.impl.app;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.inject.Inject;
@@ -10,7 +10,7 @@ import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.core.token.JsonToken;
 import wxdgaming.boot2.core.token.JsonTokenParse;
 import wxdgaming.boot2.starter.net.SocketSession;
-import wxdgaming.webim.gateway.module.dirve.AbstractProcessor;
+import wxdgaming.webim.gateway.module.dirve.AbstractApp2GatewayMessageProcessor;
 import wxdgaming.webim.ForwardMessage;
 import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.gateway.module.GatewayService;
@@ -26,7 +26,7 @@ import java.util.Comparator;
  **/
 @Slf4j
 @Singleton
-public class LoginProcessor extends AbstractProcessor {
+public class LoginProcessor extends AbstractApp2GatewayMessageProcessor {
 
     @Value(path = "json.token.key", nestedPath = true)
     private String jsonTokenKey;

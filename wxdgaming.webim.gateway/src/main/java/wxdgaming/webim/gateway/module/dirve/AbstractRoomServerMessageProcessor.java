@@ -7,12 +7,12 @@ import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.gateway.module.GatewayService;
 
 /**
- * 处理器
+ * 房间服务器传递过来的消息处理
  *
  * @author: wxd-gaming(無心道, 15388152619)
  * @version: 2025-07-10 11:29
  **/
-public abstract class AbstractProcessor {
+public abstract class AbstractRoomServerMessageProcessor {
 
     @Inject protected GatewayService gatewayService;
 
