@@ -160,7 +160,7 @@ public class GatewayService extends HoldRunApplication {
             }
             roomServerRoomCountMap.put(roomServerMapping.getSid(), atomicInteger);
         }
-        if (!initEnd.get()) {
+        if (!initEnd.get() && !roomServerProxyMap.isEmpty()) {
             long count = roomServerProxyMap.values().stream().filter(proxy -> proxy.idle() != null).count();
             if (roomServerProxyMap.size() >= count) {
                 initEnd.set(true);
