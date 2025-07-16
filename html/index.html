@@ -97,6 +97,8 @@
         var loginAccount = null;
         var token = "";
         var loginEnd = false;
+        var loginInitEnd = false;
+        var reconnect = false;
 
         var roomMap = new wxd.Map();
 
@@ -138,6 +140,7 @@
 
             wsClient.onClose = () => {
                 console.log("onClose");
+                reconnect = true;
             };
 
             wsClient.onRead = (msg) => {
@@ -159,9 +162,9 @@
                     for (const room of roomList) {
                         addRoomUi(room);
                     }
-                    if (!loginEnd) {
+                    if (!loginInitEnd) {
                         if (!wxd.isNull(roomMap.get("1"))) {
-                            loginEnd = true;
+                            loginInitEnd = true;
                             checkRoom("1");
                         }
                     }
@@ -202,11 +205,21 @@
             };
 
             setInterval(() => {
+                if (reconnect) {
+                    console.log("重连");
+                    reconnect = false;
+                    initEndCheck();
+                    return;
+                }
                 wsClient.socketOpen && wsClient.sendMsg(pingMessage);
             }, 5000);
 
-            let upToken = localStorage.getItem("token");
+            initEndCheck();
 
+        });
+
+        function initEndCheck() {
+            let upToken = localStorage.getItem("token");
             wxd.netty.post("/api/chat/user/checkToken", "token=" + upToken,
                 (res) => {
                     if (res.code === 1) {
@@ -219,8 +232,7 @@
                     showLogin();
                 }
             );
-
-        });
+        }
 
         function showLogin() {
             $(".loginBg").show();
@@ -249,6 +261,7 @@
             $(".loginBg").hide();
             loginAccount = data.name;
             token = data.token;
+            loginEnd = true;
             localStorage.setItem("token", token);
             $("#li_account").html(loginAccount);
 
