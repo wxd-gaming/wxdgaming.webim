@@ -68,8 +68,9 @@
                                     </fileset>
                                 </copy>
                                 <copy todir="${project.basedir}/../target/webim-gateway" overwrite="true">
-                                    <fileset dir="${project.basedir}/src/main/resources" erroronmissingdir="false">
-                                        <include name="*"/>
+                                    <fileset dir="${project.build.directory}/classes" erroronmissingdir="false">
+                                        <include name="*.yml"/>
+                                        <include name="*.xml"/>
                                     </fileset>
                                 </copy>
                                 <copy todir="${project.basedir}/../target/webim-gateway" overwrite="true">

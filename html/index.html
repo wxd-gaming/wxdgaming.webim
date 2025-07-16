@@ -208,7 +208,7 @@
                 if (reconnect) {
                     console.log("重连");
                     reconnect = false;
-                    initEndCheck();
+                    wsConnect();
                     return;
                 }
                 wsClient.socketOpen && wsClient.sendMsg(pingMessage);
@@ -274,17 +274,21 @@
             let port = data.port;
 
             ws_url = ws_url + "://" + host + ":" + port + "/wxd-chat";
-            console.log("ws_url=" + ws_url);
-            wsClient.connect(ws_url);
+            wsConnect();
 
             wxd.loading();
             sendLoginMessage();
         }
 
+        function wsConnect() {
+            console.log("ws_url=" + ws_url);
+            wsClient.connect(ws_url);
+        }
+
         function sendLoginMessage() {
-            let loginMessage = new wxd.Map().put("cmd", "login").put("token", token).toJson();
             setTimeout(() => {
                 if (wsClient.socketOpen) {
+                    let loginMessage = new wxd.Map().put("cmd", "login").put("token", token).toJson();
                     wsClient.sendMsg(loginMessage);
                     wxd.loading_close();
                 } else {
