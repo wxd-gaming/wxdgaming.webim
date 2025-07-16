@@ -10,10 +10,10 @@ import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.core.token.JsonToken;
 import wxdgaming.boot2.core.token.JsonTokenParse;
 import wxdgaming.boot2.starter.net.SocketSession;
-import wxdgaming.webim.gateway.module.dirve.AbstractApp2GatewayMessageProcessor;
 import wxdgaming.webim.ForwardMessage;
 import wxdgaming.webim.bean.ChatUser;
 import wxdgaming.webim.gateway.module.GatewayService;
+import wxdgaming.webim.gateway.module.dirve.AbstractApp2GatewayMessageProcessor;
 import wxdgaming.webim.gateway.module.service.Gateway2RoomServerSocketProxy;
 
 import java.util.Comparator;
@@ -73,16 +73,15 @@ public class LoginProcessor extends AbstractApp2GatewayMessageProcessor {
         socketSession.getChannel().closeFuture().addListener(future -> {
             gatewayService.getAccountSessionMappingMap().remove(chatUser.getName());
             log.info("用户登录: {} 下线", chatUser.getName());
-            logout2RoomServer(socketSession, chatUser, jsonObject);
+            logout2RoomServer(chatUser);
         });
 
-        login2RoomServer(socketSession, chatUser, jsonObject);
+        login2RoomServer(chatUser);
     }
 
-    void logout2RoomServer(SocketSession socketSession, ChatUser chatUser, JSONObject jsonObject) {
+    void logout2RoomServer(ChatUser chatUser) {
         ForwardMessage.Gateway2RoomServer forwardMessage = new ForwardMessage.Gateway2RoomServer();
         forwardMessage.setAccount(chatUser.getName());
-        forwardMessage.setClientSessionId(socketSession.getUid());
         forwardMessage.setCmd("logout");
         gatewayService.getRoomServerProxyMap().values().forEach(roomServer -> {
             SocketSession idle = roomServer.idle();
@@ -94,16 +93,12 @@ public class LoginProcessor extends AbstractApp2GatewayMessageProcessor {
         });
     }
 
-    void login2RoomServer(SocketSession socketSession, ChatUser chatUser, JSONObject jsonObject) {
-        ForwardMessage.Gateway2RoomServer forwardMessage = new ForwardMessage.Gateway2RoomServer();
-        forwardMessage.setAccount(chatUser.getName());
-        forwardMessage.setClientSessionId(socketSession.getUid());
-        forwardMessage.setCmd("login");
-        forwardMessage.setMessage(jsonObject);
+    void login2RoomServer(ChatUser chatUser) {
+        String message = gatewayService.buildLogin2RoomServerMessage(chatUser.getName());
         gatewayService.getRoomServerProxyMap().values().stream().sorted(Comparator.comparingInt(Gateway2RoomServerSocketProxy::getRoomServerId)).forEach(roomServer -> {
             SocketSession idle = roomServer.idle();
             if (idle != null) {
-                idle.write(forwardMessage.toJSONString());
+                idle.write(message);
             } else {
                 log.warn("{} 服务器繁忙", roomServer.getRoomServerId());
             }

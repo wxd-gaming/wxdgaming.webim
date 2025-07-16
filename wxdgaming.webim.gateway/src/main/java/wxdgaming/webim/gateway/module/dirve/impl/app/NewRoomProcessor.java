@@ -59,7 +59,6 @@ public class NewRoomProcessor extends AbstractApp2GatewayMessageProcessor {
     void send2RoomServer(SocketSession roomServer, SocketSession socketSession, ChatUser chatUser, JSONObject jsonObject) {
         ForwardMessage.Gateway2RoomServer forwardMessage = new ForwardMessage.Gateway2RoomServer();
         forwardMessage.setAccount(chatUser.getName());
-        forwardMessage.setClientSessionId(socketSession.getUid());
         forwardMessage.setCmd("NewRoom");
         forwardMessage.setMessage(jsonObject);
         roomServer.write(forwardMessage.toJSONString());

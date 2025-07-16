@@ -32,8 +32,10 @@ import wxdgaming.webim.gateway.module.data.DataCenterService;
 import wxdgaming.webim.gateway.module.service.Gateway2RoomServerSocketProxy;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -83,7 +85,8 @@ public class GatewayService extends HoldRunApplication {
     final ProtoListenerFactory protoListenerFactory;
     final HttpListenerFactory httpListenerFactory;
     final SocketClientConfig socketForwardConfig;
-
+    /** 连接成功同步用户到房间服务器 */
+    final ConcurrentSkipListSet<Long> sendLoginUserSet = new ConcurrentSkipListSet<>();
     private final AtomicBoolean initEnd = new AtomicBoolean();
 
     @Inject
@@ -187,8 +190,21 @@ public class GatewayService extends HoldRunApplication {
             if (socketSession.isOpen()) {
                 log.debug("{}", roomServerMapping);
                 socketSession.writeAndFlush(gatewayServerMapping);
+                if (sendLoginUserSet.add(socketSession.getUid())) {
+                    for (Map.Entry<String, SocketSession> entry : accountSessionMappingMap.entrySet()) {
+                        String string = buildLogin2RoomServerMessage(entry.getKey());
+                        socketSession.writeAndFlush(string);
+                    }
+                }
             }
         }
-
     }
+
+    public String buildLogin2RoomServerMessage(String account) {
+        ForwardMessage.Gateway2RoomServer forwardMessage = new ForwardMessage.Gateway2RoomServer();
+        forwardMessage.setAccount(account);
+        forwardMessage.setCmd("login");
+        return forwardMessage.toJSONString();
+    }
+
 }

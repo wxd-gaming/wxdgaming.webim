@@ -18,7 +18,6 @@ public interface ForwardMessage {
     @Getter
     @Setter
     public static class Gateway2RoomServer extends ObjectBase {
-        private long clientSessionId;
         private String account;
         private String cmd;
         private JSONObject message;

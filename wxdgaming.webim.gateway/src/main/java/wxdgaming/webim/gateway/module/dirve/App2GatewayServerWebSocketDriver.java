@@ -96,7 +96,6 @@ public class App2GatewayServerWebSocketDriver extends HoldRunApplication impleme
                 SocketSession idle = gateway2RoomServerSocketClient.idle();
                 if (idle != null) {
                     ForwardMessage.Gateway2RoomServer forwardMessage = new ForwardMessage.Gateway2RoomServer();
-                    forwardMessage.setClientSessionId(socketSession.getUid());
                     forwardMessage.setAccount(bindData.getName());
                     forwardMessage.setCmd(cmd);
                     forwardMessage.setMessage(jsonObject);
