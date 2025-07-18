@@ -6,7 +6,6 @@ set PATH=%JAVA_HOME%\bin;%PATH%
 
 :: 检查JAVA_HOME是否配置成功
 echo %JAVA_HOME%
-echo %PATH%
 
 :: 打印Java版本信息，确认配置成功
 call java -version
