@@ -36,21 +36,6 @@
             text-align: center;
         }
 
-        ul.title li {
-            display: block;
-            width: 100%;
-            text-align: right;
-            text-wrap: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
-            margin-bottom: 10px;
-            padding-top: 5px;
-            padding-bottom: 5px;
-            padding-right: 3px;
-            background: #0a6aa1;
-            cursor: pointer;
-        }
-
         .chat_box_content object {
             position: absolute; /*父亲*/
             top: 150%;
@@ -64,10 +49,51 @@
             left: 0;
         }
 
-        /*选中效果*/
-        ul.title li.checked {background: #f4782f;}
+        ul.title li {
+            display: block;
+            width: 100%;
+            text-align: right;
+            text-wrap: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin-bottom: 10px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-right: 3px;
+            background: #0a6aa1;
+            cursor: pointer;
+            align-items: center;
+            justify-content: space-between;
+            transition: background-color 0.3s ease;
+            transform: translateY(10px);
+            animation: fadeInUp 0.5s forwards;
+        }
 
-        ul.title li:hover {background: #f4782f;padding-top: 8px;padding-bottom: 8px;cursor: pointer;}
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            ul.title li {
+                font-size: 14px;
+                padding: 6px 10px;
+            }
+        }
+
+        /*选中效果*/
+        ul.title li.checked {background: #f4782f; font-weight: bold; border-radius: 6px;}
+
+        ul.title li:hover {
+            background: #f4782f;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            cursor: pointer;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
 
         .divBg {display: none;position: absolute;top: 0;left: 0;width: 100%;height: 100%;background: rgba(28, 28, 28, 0.48);z-index: 100;}
 
@@ -393,7 +419,7 @@
 <table>
     <tr>
         <td id="td_user_box" style="vertical-align: top;width: 200px;border-right: #0a6aa1 1px solid;">
-            <ul class="ulUser">
+            <ul class="ulUser" style="margin-bottom: 18px;">
                 <li style="padding-top: 8px;">
                     <label id="li_account">admin</label>
                     <button onclick="logout()">退出</button>

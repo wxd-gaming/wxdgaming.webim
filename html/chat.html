@@ -71,7 +71,51 @@
 
         #ul_user_box li { width: 100%; min-height: 22px; cursor: pointer;}
 
-        #ul_user_box li.li_user:hover {background-color: rgba(243, 106, 4, 0.93);padding-left: 5px;padding-top: 8px;padding-bottom: 8px;}
+        #ul_user_box li.li_user {
+            font-size: 14px;
+            line-height: 1.5;
+            padding: 6px 12px;
+            transition: background-color 0.3s ease;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.5s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #ul_user_box li.li_user:hover {
+            background: linear-gradient(to right, #f4782f, #ff9900);
+            padding-left: 10px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            #ul_user_box li.li_user {
+                font-size: 13px;
+                padding: 5px 10px;
+            }
+        }
+
+        .status {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .status.online {
+            background-color: limegreen;
+        }
 
         .nav-user-close {position: absolute;right: 0;top: calc(50% - 80px);height: 120px;width: 15px;background-color: #00a2d4;border-radius: 4px 0 0 4px;cursor: pointer;z-index: 999;}
 
