@@ -19,9 +19,8 @@ import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.core.util.Md5Util;
 import wxdgaming.boot2.starter.net.SocketSession;
 import wxdgaming.boot2.starter.net.client.SocketClientConfig;
-import wxdgaming.boot2.starter.net.httpclient.HttpBuilder;
-import wxdgaming.boot2.starter.net.httpclient.PostText;
-import wxdgaming.boot2.starter.net.httpclient.Response;
+import wxdgaming.boot2.starter.net.httpclient5.HttpContent;
+import wxdgaming.boot2.starter.net.httpclient5.PostRequest;
 import wxdgaming.boot2.starter.net.pojo.ProtoListenerFactory;
 import wxdgaming.boot2.starter.net.server.SocketServerConfig;
 import wxdgaming.boot2.starter.net.server.http.HttpListenerFactory;
@@ -123,16 +122,16 @@ public class GatewayService extends HoldRunApplication {
 
         String authorization = Md5Util.md5DigestEncode(jsonString, innerAuthorizationKey);
 
-        Response<PostText> request = HttpBuilder.postJson(loginServerUrl + "/inner/syncGatewayServer", jsonString)
-                .header(HttpHeaderNames.AUTHORIZATION, authorization)
-                .request();
+        HttpContent execute = PostRequest.ofJson(loginServerUrl + "/inner/syncGatewayServer", jsonString)
+                .addHeader(HttpHeaderNames.AUTHORIZATION.toString(), authorization)
+                .execute();
 
-        if (!request.isSuccess()) {
-            log.error("访问登陆服务器失败{}", Throw.ofString(request.getException(), false));
+        if (!execute.isSuccess()) {
+            log.error("访问登陆服务器失败{}", Throw.ofString(execute.getException(), false));
             return;
         }
 
-        RunResult runResult = request.bodyRunResult();
+        RunResult runResult = execute.bodyRunResult();
 
         if (runResult.isFail()) {
             log.error("添加房间服务器映射失败:{}", runResult.msg());

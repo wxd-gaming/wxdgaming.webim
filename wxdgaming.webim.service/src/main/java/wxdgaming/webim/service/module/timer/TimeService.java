@@ -13,9 +13,8 @@ import wxdgaming.boot2.core.ann.Value;
 import wxdgaming.boot2.core.chatset.json.FastJsonUtil;
 import wxdgaming.boot2.core.executor.ExecutorWith;
 import wxdgaming.boot2.core.util.Md5Util;
-import wxdgaming.boot2.starter.net.httpclient.HttpBuilder;
-import wxdgaming.boot2.starter.net.httpclient.PostText;
-import wxdgaming.boot2.starter.net.httpclient.Response;
+import wxdgaming.boot2.starter.net.httpclient5.HttpContent;
+import wxdgaming.boot2.starter.net.httpclient5.PostRequest;
 import wxdgaming.boot2.starter.net.server.SocketServerConfig;
 import wxdgaming.boot2.starter.scheduled.ann.Scheduled;
 import wxdgaming.webim.bean.ServerMapping;
@@ -70,16 +69,16 @@ public class TimeService extends HoldRunApplication {
 
         String authorization = Md5Util.md5DigestEncode(jsonString, innerAuthorizationKey);
 
-        Response<PostText> request = HttpBuilder.postJson(loginServerUrl + "/inner/syncRoomServer", jsonString)
-                .header(HttpHeaderNames.AUTHORIZATION, authorization)
-                .request();
+        HttpContent execute = PostRequest.ofJson(loginServerUrl + "/inner/syncRoomServer", jsonString)
+                .addHeader(HttpHeaderNames.AUTHORIZATION.toString(), authorization)
+                .execute();
 
-        if (!request.isSuccess()) {
-            log.error("访问登陆服务器失败{}", Throw.ofString(request.getException(), false));
+        if (!execute.isSuccess()) {
+            log.error("访问登陆服务器失败{}", Throw.ofString(execute.getException(), false));
             return;
         }
 
-        String bodyString = request.bodyString();
+        String bodyString = execute.bodyString();
 
         log.info("添加房间服务器映射结果:{}", bodyString);
 
