@@ -19,8 +19,8 @@ import wxdgaming.boot2.core.lang.RunResult;
 import wxdgaming.boot2.core.util.Md5Util;
 import wxdgaming.boot2.starter.net.SocketSession;
 import wxdgaming.boot2.starter.net.client.SocketClientConfig;
-import wxdgaming.boot2.starter.net.httpclient5.HttpContent;
-import wxdgaming.boot2.starter.net.httpclient5.PostRequest;
+import wxdgaming.boot2.starter.net.httpclient5.HttpResponse;
+import wxdgaming.boot2.starter.net.httpclient5.HttpRequestPost;
 import wxdgaming.boot2.starter.net.pojo.ProtoListenerFactory;
 import wxdgaming.boot2.starter.net.server.SocketServerConfig;
 import wxdgaming.boot2.starter.net.server.http.HttpListenerFactory;
@@ -122,7 +122,7 @@ public class GatewayService extends HoldRunApplication {
 
         String authorization = Md5Util.md5DigestEncode(jsonString, innerAuthorizationKey);
 
-        HttpContent execute = PostRequest.ofJson(loginServerUrl + "/inner/syncGatewayServer", jsonString)
+        HttpResponse execute = HttpRequestPost.ofJson(loginServerUrl + "/inner/syncGatewayServer", jsonString)
                 .addHeader(HttpHeaderNames.AUTHORIZATION.toString(), authorization)
                 .execute();
 

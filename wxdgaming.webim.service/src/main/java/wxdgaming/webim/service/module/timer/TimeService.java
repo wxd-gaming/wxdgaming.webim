@@ -13,8 +13,8 @@ import wxdgaming.boot2.core.ann.Value;
 import wxdgaming.boot2.core.chatset.json.FastJsonUtil;
 import wxdgaming.boot2.core.executor.ExecutorWith;
 import wxdgaming.boot2.core.util.Md5Util;
-import wxdgaming.boot2.starter.net.httpclient5.HttpContent;
-import wxdgaming.boot2.starter.net.httpclient5.PostRequest;
+import wxdgaming.boot2.starter.net.httpclient5.HttpResponse;
+import wxdgaming.boot2.starter.net.httpclient5.HttpRequestPost;
 import wxdgaming.boot2.starter.net.server.SocketServerConfig;
 import wxdgaming.boot2.starter.scheduled.ann.Scheduled;
 import wxdgaming.webim.bean.ServerMapping;
@@ -69,7 +69,7 @@ public class TimeService extends HoldRunApplication {
 
         String authorization = Md5Util.md5DigestEncode(jsonString, innerAuthorizationKey);
 
-        HttpContent execute = PostRequest.ofJson(loginServerUrl + "/inner/syncRoomServer", jsonString)
+        HttpResponse execute = HttpRequestPost.ofJson(loginServerUrl + "/inner/syncRoomServer", jsonString)
                 .addHeader(HttpHeaderNames.AUTHORIZATION.toString(), authorization)
                 .execute();
 
